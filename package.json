@@ -1,0 +1,25 @@
+{
+  "name": "api-usage",
+  "author": "Lloyd Brookes <75pound@gmail.com>",
+  "version": "0.0.0",
+  "description": "api-usage",
+  "repository": "https://github.com/75lb/api-usage.git",
+  "license": "MIT",
+  "main": "main.js",
+  "keywords": [],
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "test-runner src/test/*.js",
+    "docs": "jsdoc2md -t jsdoc2md/README.hbs lib/*.js > README.md; echo"
+  },
+  "dependencies": {
+    "usage-stats": "^0.4.4"
+  },
+  "devDependencies": {
+    "core-assert": "^0.2.0",
+    "feature-detect-es6": "^1.3.1",
+    "test-runner": "^0.2.3"
+  }
+}
