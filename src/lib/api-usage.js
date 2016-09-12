@@ -1,16 +1,7 @@
 'use strict'
-const version = require('../../package').version
 const os = require('os')
 const UsageStats = require('usage-stats')
-const usageStats = new UsageStats('UA-70853320-4', {
-  name: 'jsdoc2md',
-  version: version
-})
-usageStats.defaults
-  .set('cd1', process.version)
-  .set('cd2', os.type())
-  .set('cd3', os.release())
-  .set('cd4', 'api')
+const testValue = require('test-value')
 
 const metricMap = {
   source: 2,
@@ -34,50 +25,76 @@ const metricMap = {
   cache: 20
 }
 
-class ApiUsage {
-  constructor (iface) {
+class TrackUsage extends UsageStats {
+  /**
+   * @param [options] {object}
+   */
+  constructor (tid, options) {
+    options = options || {}
+    super(tid, options)
     this.stats = []
-    this.interface = iface
-    // usageStats.load()
+    this.dimensionMap = options.dimensionMap || {}
+    this.metricMap = options.metricMap || {}
+
     process.on('exit', code => {
       // console.error('exit', code, usageStats)
-      usageStats.save()
+      this.save()
     })
   }
   /**
    * Track a method invocation.
    */
-  hit (method, metrics, dimensions) {
-    /* Sync */
-    if (method.endsWith('Sync')) {
-      let hit = usageStats._hits.find(hit => hit.get('cd') === method)
-      if (!hit) {
-        usageStats.screenView(method)
-        hit = usageStats._hits[usageStats._hits.length - 1]
+  hit (dimensions, metrics) {
+    let stat = this.stats.find(testValue.where(dimensions))
+    if (!stat) {
+      stat = dimensions
+      stat._metrics = {}
+      for (const key of Object.keys(metrics)) {
+        stat._metrics[key] = 1
       }
-      if (hit.has('cm1')) {
-        hit.set('cm1', hit.get('cm1') + 1)
-      } else {
-        hit.set('cm1', 1)
-      }
-      if (metrics) {
-        Object.keys(metrics).forEach(option => {
-          if (metricMap[option]) {
-            const metric = `cm${metricMap[option]}`
-            const count = hit.get(metric)
-            hit.set(metric, count ? count + 1 : 1)
-          }
-        })
-      }
-
-    /* Async */
+      this.stats.push(stat)
     } else {
-      usageStats.screenView(method, { hitParams: new Map([[ 'cm1', 1 ]]) })
-      // console.error(usageStats._hits)
-      usageStats.end().send()
-        .then(results => console.error(require('util').inspect(results, { depth: 3, colors: true })))
-        .catch(err => console.error(err.stack))
+      for (const key of Object.keys(metrics)) {
+        if (stat._metrics[key]) {
+          stat._metrics[key]++
+        } else {
+          stat._metrics[key] = 1
+        }
+      }
     }
+
+
+
+    // /* Sync */
+    // if (method.endsWith('Sync')) {
+    //   let hit = usageStats._hits.find(hit => hit.get('cd') === method)
+    //   if (!hit) {
+    //     usageStats.screenView(method)
+    //     hit = usageStats._hits[usageStats._hits.length - 1]
+    //   }
+    //   if (hit.has('cm1')) {
+    //     hit.set('cm1', hit.get('cm1') + 1)
+    //   } else {
+    //     hit.set('cm1', 1)
+    //   }
+    //   if (metrics) {
+    //     Object.keys(metrics).forEach(option => {
+    //       if (metricMap[option]) {
+    //         const metric = `cm${metricMap[option]}`
+    //         const count = hit.get(metric)
+    //         hit.set(metric, count ? count + 1 : 1)
+    //       }
+    //     })
+    //   }
+    //
+    // /* Async */
+    // } else {
+    //   usageStats.screenView(method, { hitParams: new Map([[ 'cm1', 1 ]]) })
+    //   // console.error(usageStats._hits)
+    //   usageStats.end().send()
+    //     .then(results => console.error(require('util').inspect(results, { depth: 3, colors: true })))
+    //     .catch(err => console.error(err.stack))
+    // }
   }
   exception (method, options, message) {
     usageStats.exception(message, 1, { hitParams: new Map([
@@ -101,6 +118,28 @@ class ApiUsage {
         .catch(err => console.error(err.stack))
     }
   }
+
+  _convertToHits () {
+    for (const stat of this.stats) {
+      const hit = this.screenView(stat.name)
+      for (const key of Object.keys(stat)) {
+        if (![ 'name', '_metrics' ].includes(key)){
+          const dId = this.dimensionMap[key]
+          if (dId) {
+            hit.set(`cd${dId}`, stat[key])
+          }
+        }
+      }
+      if (stat._metrics) {
+        for (const metric of Object.keys(stat._metrics)) {
+          const mId = this.metricMap[metric]
+          if (mId) {
+            hit.set(`cm${mId}`, stat._metrics[metric])
+          }
+        }
+      }
+    }
+  }
 }
 
-module.exports = ApiUsage
+module.exports = TrackUsage
