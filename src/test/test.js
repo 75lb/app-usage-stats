@@ -8,7 +8,7 @@ const runner = new TestRunner()
 const tid = 'UA-70853320-4'
 
 runner.test('.hit(dimensions, metrics)', function () {
-  const usage = new TrackUsage(tid)
+  const usage = new TrackUsage(tid, 'testsuite')
   usage.hit({ name: 'method1', interface: 'cli' }, { option1: true, option2: 'whatever' })
   usage.hit({ name: 'method1', interface: 'api' }, { option1: true, option3: 'whatever' })
   usage.hit({ name: 'method1', interface: 'api' }, { option1: true })
@@ -40,7 +40,7 @@ runner.test('.hit(dimensions, metrics)', function () {
 })
 
 runner.test('._convertToHits()', function () {
-  const usage = new TrackUsage(tid, {
+  const usage = new TrackUsage(tid, 'testsuite', {
     dimensionMap: {
       name: 'screenview',
       interface: 1
@@ -76,19 +76,18 @@ runner.test('._convertToHits()', function () {
   a.strictEqual(usage._hits[2].get('cm2'), 1)
 })
 
-runner.test('.load()', function () {
-
-})
-
 runner.test('.save() and .load()', function () {
-  const usage = new TrackUsage(tid, { dir: 'tmp' })
+  const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp' })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
   return usage.save()
+    .then(() => {
+      fs.readFileSync('tmp/testsuite-stats.json')
+    })
     .then(() => usage.load())
     .then(stats => {
       a.deepStrictEqual(stats, [
-        { name: 'one', metrics: { metric: 2 }}
+        { name: 'one', _metrics: { metric: 2 }}
       ])
     })
 })

@@ -2,6 +2,8 @@
 const os = require('os')
 const UsageStats = require('usage-stats')
 const testValue = require('test-value')
+const fs = require('fs')
+const path = require('path')
 
 const metricMap = {
   source: 2,
@@ -29,12 +31,13 @@ class TrackUsage extends UsageStats {
   /**
    * @param [options] {object}
    */
-  constructor (tid, options) {
+  constructor (tid, appName, options) {
     options = options || {}
-    super(tid, options)
+    super(tid, appName, options)
     this.stats = []
     this.dimensionMap = options.dimensionMap || {}
     this.metricMap = options.metricMap || {}
+    this.statsPath = path.resolve(this.dir, this.appName + '-stats.json')
 
     process.on('exit', code => {
       // console.error('exit', code, usageStats)
@@ -139,6 +142,24 @@ class TrackUsage extends UsageStats {
         }
       }
     }
+  }
+
+  save () {
+    return new Promise((resolve, reject) => {
+      fs.writeFile(this.statsPath, JSON.stringify(this.stats), err => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
+  }
+
+  load () {
+    return new Promise((resolve, reject) => {
+      fs.readFile(this.statsPath, 'utf8', (err, data) => {
+        if (err) reject(err)
+        else resolve(JSON.parse(data))
+      })
+    })
   }
 }
 

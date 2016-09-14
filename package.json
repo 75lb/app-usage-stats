@@ -15,6 +15,7 @@
     "docs": "jsdoc2md -t jsdoc2md/README.hbs lib/*.js > README.md; echo"
   },
   "dependencies": {
+    "home-path": "^1.0.3",
     "test-value": "^2.1.0",
     "usage-stats": "^0.4.4"
   },
