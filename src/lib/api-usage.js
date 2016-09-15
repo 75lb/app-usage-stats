@@ -38,11 +38,13 @@ class TrackUsage extends UsageStats {
     this.dimensionMap = options.dimensionMap || {}
     this.metricMap = options.metricMap || {}
     this.statsPath = path.resolve(this.dir, this.appName + '-stats.json')
+    this._lastSentPath = path.resolve(this.dir, this.appName + '-lastSent.json')
+    this.sendInterval = options.sendInterval
 
-    process.on('exit', code => {
-      // console.error('exit', code, usageStats)
-      this.save()
-    })
+    // process.on('exit', code => {
+    //   // console.error('exit', code, usageStats)
+    //   this.save()
+    // })
   }
   /**
    * Track a method invocation.
@@ -66,7 +68,16 @@ class TrackUsage extends UsageStats {
       }
     }
 
-
+    if (this.sendInterval) {
+      const lastSent = this._getLastSent()
+      if (Date.now() - lastSent >= this.sendInterval) {
+        this._setLastSent(Date.now())
+        this._convertToHits()
+        return this.send()
+      } else {
+        return Promise.resolve([])
+      }
+    }
 
     // /* Sync */
     // if (method.endsWith('Sync')) {
@@ -160,6 +171,22 @@ class TrackUsage extends UsageStats {
         else resolve(JSON.parse(data))
       })
     })
+  }
+
+  _getLastSent () {
+    let lastSent
+    try {
+      lastSent = JSON.parse(fs.readFileSync(this._lastSentPath, 'utf8'))
+    } catch (err) {
+      if (err.code !== 'ENOENT') throw err
+      lastSent = Date.now()
+      this._setLastSent(lastSent)
+    }
+    return lastSent
+  }
+
+  _setLastSent (lastSent) {
+    fs.writeFileSync(this._lastSentPath, JSON.stringify(lastSent))
   }
 }
 

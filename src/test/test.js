@@ -92,21 +92,27 @@ runner.test('.save() and .load()', function () {
     })
 })
 
-runner.skip('.send()', function () {
-  const usage = new TrackUsage(tid, { dir: 'tmp' })
-  usage.hit({ name: 'one' }, { metric: 1 })
-  usage.hit({ name: 'one' }, { metric: 1 })
-  return usage.send({ debug: true })
-    .then(results => {
-      a.strictEqual(results.length, 1)
+runner.test('.hit(): auto-send', function () {
+  const usage = new TrackUsage(tid, 'testsuite', { sendInterval: 200, dir: 'tmp' })
+  fs.unlinkSync(usage._lastSentPath)
+  return Promise.all([
+    usage
+      .hit({ name: 'one' }, { metric: 1 })
+      .then(responses => a.strictEqual(responses.length, 0)),
+    usage
+      .hit({ name: 'one' }, { metric: 1 })
+      .then(responses => a.strictEqual(responses.length, 0)),
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        usage
+          .hit({ name: 'one' }, { metric: 1 })
+          .then(responses => {
+            // console.error(require('util').inspect(responses, { depth: 3, colors: true }))
+            a.strictEqual(responses.length, 1)
+          })
+          .then(resolve)
+          .catch(reject)
+      }, 210)
     })
-})
-
-runner.skip('.hits', function () {
-  const usage = new TrackUsage(tid)
-  usage.hit({ method: 'rename', interface: 'cli'}, { dryRun: true, verbose: true })
-  usage.hit({ method: 'rename', interface: 'api'}, { debug: true })
-  usage.hit({ method: 'rename', interface: 'api'}, { debug: true })
-
-  a.strictEqual(usage.hits.length, 3)
+  ])
 })
