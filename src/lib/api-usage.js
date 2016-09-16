@@ -5,28 +5,6 @@ const testValue = require('test-value')
 const fs = require('fs')
 const path = require('path')
 
-const metricMap = {
-  source: 2,
-  configure: 3,
-  html: 4,
-  template: 5,
-  'heading-depth': 6,
-  'example-lang': 7,
-  plugin: 8,
-  helper: 9,
-  partial: 10,
-  'name-format': 11,
-  'no-gfm': 12,
-  separators: 13,
-  'module-index-format': 14,
-  'global-index-format': 15,
-  'param-list-format': 16,
-  'property-list-format': 17,
-  'member-index-format': 18,
-  private: 19,
-  cache: 20
-}
-
 class TrackUsage extends UsageStats {
   /**
    * @param [options] {object}
@@ -40,11 +18,6 @@ class TrackUsage extends UsageStats {
     this.statsPath = path.resolve(this.dir, this.appName + '-stats.json')
     this._lastSentPath = path.resolve(this.dir, this.appName + '-lastSent.json')
     this.sendInterval = options.sendInterval
-
-    // process.on('exit', code => {
-    //   // console.error('exit', code, usageStats)
-    //   this.save()
-    // })
   }
   /**
    * Track a method invocation.
@@ -78,38 +51,8 @@ class TrackUsage extends UsageStats {
         return Promise.resolve([])
       }
     }
-
-    // /* Sync */
-    // if (method.endsWith('Sync')) {
-    //   let hit = usageStats._hits.find(hit => hit.get('cd') === method)
-    //   if (!hit) {
-    //     usageStats.screenView(method)
-    //     hit = usageStats._hits[usageStats._hits.length - 1]
-    //   }
-    //   if (hit.has('cm1')) {
-    //     hit.set('cm1', hit.get('cm1') + 1)
-    //   } else {
-    //     hit.set('cm1', 1)
-    //   }
-    //   if (metrics) {
-    //     Object.keys(metrics).forEach(option => {
-    //       if (metricMap[option]) {
-    //         const metric = `cm${metricMap[option]}`
-    //         const count = hit.get(metric)
-    //         hit.set(metric, count ? count + 1 : 1)
-    //       }
-    //     })
-    //   }
-    //
-    // /* Async */
-    // } else {
-    //   usageStats.screenView(method, { hitParams: new Map([[ 'cm1', 1 ]]) })
-    //   // console.error(usageStats._hits)
-    //   usageStats.end().send()
-    //     .then(results => console.error(require('util').inspect(results, { depth: 3, colors: true })))
-    //     .catch(err => console.error(err.stack))
-    // }
   }
+
   exception (method, options, message) {
     usageStats.exception(message, 1, { hitParams: new Map([
       [ 'cd', method ],
@@ -126,6 +69,7 @@ class TrackUsage extends UsageStats {
       })
     }
 
+    /* send async exceptions immediately */
     if (!method.endsWith('Sync')) {
       usageStats.end().send()
         .then(results => console.error(require('util').inspect(results, { depth: 3, colors: true })))
@@ -164,6 +108,10 @@ class TrackUsage extends UsageStats {
     })
   }
 
+  saveSync () {
+    fs.writeFileSync(this.statsPath, JSON.stringify(this.stats))
+  }
+
   load () {
     return new Promise((resolve, reject) => {
       fs.readFile(this.statsPath, 'utf8', (err, data) => {
@@ -171,6 +119,18 @@ class TrackUsage extends UsageStats {
         else resolve(JSON.parse(data))
       })
     })
+  }
+
+  loadSync () {
+    try {
+      this.stats = JSON.parse(fs.readFileSync(this.statsPath, 'utf8'))
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        return []
+      } else {
+        throw err
+      }
+    }
   }
 
   _getLastSent () {
