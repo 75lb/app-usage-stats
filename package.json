@@ -1,9 +1,9 @@
 {
-  "name": "api-usage",
+  "name": "app-usage-stats",
   "author": "Lloyd Brookes <75pound@gmail.com>",
   "version": "0.0.0",
-  "description": "api-usage",
-  "repository": "https://github.com/75lb/api-usage.git",
+  "description": "app-usage-stats",
+  "repository": "https://github.com/75lb/app-usage-stats.git",
   "license": "MIT",
   "main": "main.js",
   "keywords": [],
@@ -17,7 +17,7 @@
   "dependencies": {
     "home-path": "^1.0.3",
     "test-value": "^2.1.0",
-    "usage-stats": "^0.4.4"
+    "usage-stats": "^0.5.0"
   },
   "devDependencies": {
     "core-assert": "^0.2.0",

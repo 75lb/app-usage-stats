@@ -1,28 +1,46 @@
 'use strict'
 const os = require('os')
 const UsageStats = require('usage-stats')
-const testValue = require('test-value')
 const fs = require('fs')
 const path = require('path')
 
-class TrackUsage extends UsageStats {
+/**
+ * @module app-usage-stats
+ * @example
+ * constn AppUsageStats = require('app-usage-stats')
+ */
+
+/**
+ * @alias module:app-usage-stats
+ */
+class AppUsageStats extends UsageStats {
   /**
+   * @param {string} - Google Analytics tracking ID
+   * @param {string} - App name
    * @param [options] {object}
+   * @param [options.dimensionMap] {object} - A custom dimension name to ID Map.
+   * @param [options.metricMap] {object} - A custom metric name to ID Map.
+   * @param [options.sendInterval] {object} - If specified, stats will be sent no more frequently than this period.
    */
   constructor (tid, appName, options) {
+    if (!appName) throw new Error('an appName is required')
     options = options || {}
-    super(tid, appName, options)
+    super(tid, options)
     this.stats = []
     this.dimensionMap = options.dimensionMap || {}
     this.metricMap = options.metricMap || {}
-    this.statsPath = path.resolve(this.dir, this.appName + '-stats.json')
-    this._lastSentPath = path.resolve(this.dir, this.appName + '-lastSent.json')
+    this.statsPath = path.resolve(this.dir, appName + '-stats.json')
+    this._lastSentPath = path.resolve(this.dir, appName + '-lastSent.json')
     this.sendInterval = options.sendInterval
   }
+
   /**
-   * Track a method invocation.
+   * Track a hit.
+   * @param {object[]} - dimension-value maps
+   * @param {object[]} - metric-value maps
    */
   hit (dimensions, metrics) {
+    const testValue = require('test-value')
     let stat = this.stats.find(testValue.where(dimensions))
     if (!stat) {
       stat = dimensions
@@ -41,6 +59,7 @@ class TrackUsage extends UsageStats {
       }
     }
 
+    /* call .send() automatically if a sendInterval is set  */
     if (this.sendInterval) {
       const lastSent = this._getLastSent()
       if (Date.now() - lastSent >= this.sendInterval) {
@@ -50,30 +69,6 @@ class TrackUsage extends UsageStats {
       } else {
         return Promise.resolve([])
       }
-    }
-  }
-
-  exception (method, options, message) {
-    usageStats.exception(message, 1, { hitParams: new Map([
-      [ 'cd', method ],
-      [ 'cm1', 1 ]
-    ])})
-    hit = usageStats._hits[usageStats._hits.length - 1]
-    if (options) {
-      Object.keys(options).forEach(option => {
-        if (metricMap[option]) {
-          const metric = `cm${metricMap[option]}`
-          const count = hit.get(metric)
-          hit.set(metric, count ? count + 1 : 1)
-        }
-      })
-    }
-
-    /* send async exceptions immediately */
-    if (!method.endsWith('Sync')) {
-      usageStats.end().send()
-        .then(results => console.error(require('util').inspect(results, { depth: 3, colors: true })))
-        .catch(err => console.error(err.stack))
     }
   }
 
@@ -99,6 +94,9 @@ class TrackUsage extends UsageStats {
     }
   }
 
+  /**
+   * Save stats
+   */
   save () {
     return new Promise((resolve, reject) => {
       fs.writeFile(this.statsPath, JSON.stringify(this.stats), err => {
@@ -108,19 +106,33 @@ class TrackUsage extends UsageStats {
     })
   }
 
+  /**
+   * Save stats sync.
+   */
   saveSync () {
     fs.writeFileSync(this.statsPath, JSON.stringify(this.stats))
   }
 
+  /**
+   * Load stats
+   */
   load () {
     return new Promise((resolve, reject) => {
       fs.readFile(this.statsPath, 'utf8', (err, data) => {
-        if (err) reject(err)
-        else resolve(JSON.parse(data))
+        if (err) {
+          reject(err)
+        } else {
+          const stats = JSON.parse(data)
+          this.stats = stats
+          resolve(stats)
+        }
       })
     })
   }
 
+  /**
+   * Loads stats sync.
+   */
   loadSync () {
     try {
       this.stats = JSON.parse(fs.readFileSync(this.statsPath, 'utf8'))
@@ -148,6 +160,19 @@ class TrackUsage extends UsageStats {
   _setLastSent (lastSent) {
     fs.writeFileSync(this._lastSentPath, JSON.stringify(lastSent))
   }
+
+  /**
+   * Send and reset stats.
+   */
+  send (options) {
+    return super.send(options)
+      .then(responses => {
+        this.stats = []
+        return this.save().then(() => responses)
+      })
+  }
 }
 
-module.exports = TrackUsage
+module.exports = AppUsageStats
+
+// ABORT LOGIC
