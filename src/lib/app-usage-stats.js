@@ -7,11 +7,13 @@ const path = require('path')
 /**
  * @module app-usage-stats
  * @example
- * constn AppUsageStats = require('app-usage-stats')
+ * const UsageStats = require('app-usage-stats')
+ * const stats = new UsageStats('UA-987654321', 'app-name')
  */
 
 /**
  * @alias module:app-usage-stats
+ * @typicalname stats
  */
 class AppUsageStats extends UsageStats {
   /**

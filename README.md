@@ -9,7 +9,8 @@
 ## app-usage-stats
 **Example**  
 ```js
-constn AppUsageStats = require('app-usage-stats')
+const UsageStats = require('app-usage-stats')
+const stats = new UsageStats('UA-987654321', 'app-name')
 ```
 
 * [app-usage-stats](#module_app-usage-stats)
@@ -41,7 +42,7 @@ constn AppUsageStats = require('app-usage-stats')
 
 <a name="module_app-usage-stats--AppUsageStats+hit"></a>
 
-#### appUsageStats.hit(dimensions, metrics)
+#### stats.hit(dimensions, metrics)
 Track a hit.
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
@@ -53,31 +54,31 @@ Track a hit.
 
 <a name="module_app-usage-stats--AppUsageStats+save"></a>
 
-#### appUsageStats.save()
+#### stats.save()
 Save stats
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats+saveSync"></a>
 
-#### appUsageStats.saveSync()
+#### stats.saveSync()
 Save stats sync.
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats+load"></a>
 
-#### appUsageStats.load()
+#### stats.load()
 Load stats
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats+loadSync"></a>
 
-#### appUsageStats.loadSync()
+#### stats.loadSync()
 Loads stats sync.
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats+send"></a>
 
-#### appUsageStats.send()
+#### stats.send()
 Send and reset stats.
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
