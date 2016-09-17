@@ -3,9 +3,14 @@ const TestRunner = require('test-runner')
 const TrackUsage = require('../../')
 const a = require('core-assert')
 const fs = require('fs')
+const rimraf = require('rimraf')
+const mkdirp = require('mkdirp')
 
 const runner = new TestRunner()
 const tid = 'UA-70853320-4'
+
+rimraf.sync('tmp/test')
+mkdirp.sync('tmp/test')
 
 runner.test('.hit(dimensions, metrics)', function () {
   const usage = new TrackUsage(tid, 'testsuite')
@@ -77,12 +82,12 @@ runner.test('._convertToHits()', function () {
 })
 
 runner.test('.save() and .load()', function () {
-  const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp' })
+  const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
   return usage.save()
     .then(() => {
-      fs.readFileSync('tmp/testsuite-stats.json')
+      fs.readFileSync('tmp/test/testsuite-stats.json')
     })
     .then(() => usage.load())
     .then(stats => {
@@ -93,8 +98,7 @@ runner.test('.save() and .load()', function () {
 })
 
 runner.test('.hit(): auto-send', function () {
-  const usage = new TrackUsage(tid, 'testsuite', { sendInterval: 200, dir: 'tmp' })
-  fs.unlinkSync(usage._lastSentPath)
+  const usage = new TrackUsage(tid, 'testsuite', { sendInterval: 200, dir: 'tmp/test' })
   return Promise.all([
     usage
       .hit({ name: 'one' }, { metric: 1 })
