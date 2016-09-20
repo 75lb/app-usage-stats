@@ -27,6 +27,7 @@ class AppUsageStats extends UsageStats {
   constructor (tid, appName, options) {
     if (!appName) throw new Error('an appName is required')
     options = options || {}
+    options.name = appName
     super(tid, options)
     this.stats = []
     this.dimensionMap = options.dimensionMap || {}
@@ -65,8 +66,6 @@ class AppUsageStats extends UsageStats {
     if (this.sendInterval) {
       const lastSent = this._getLastSent()
       if (Date.now() - lastSent >= this.sendInterval) {
-        this._setLastSent(Date.now())
-        this._convertToHits()
         return this.send()
       } else {
         return Promise.resolve([])
@@ -166,9 +165,11 @@ class AppUsageStats extends UsageStats {
   /**
    * Send and reset stats.
    */
-  send (options) {
-    return super.send(options)
+  send () {
+    this._convertToHits()
+    return super.send()
       .then(responses => {
+        this._setLastSent(Date.now())
         this.stats = []
         return this.save().then(() => responses)
       })
@@ -176,5 +177,3 @@ class AppUsageStats extends UsageStats {
 }
 
 module.exports = AppUsageStats
-
-// ABORT LOGIC
