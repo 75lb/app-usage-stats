@@ -173,17 +173,12 @@ class AppUsageStats extends UsageStats {
    */
   send () {
     this._convertToHits()
+    this.stats.length = 0
     this._setLastSent(Date.now())
     return super.send()
       .then(responses => {
-        this.stats.length = 0
-        // console.error('SEND GOOD')
-        // return this.save().then(() => responses)
         return responses
       })
-      // .catch(err => {
-      //   console.error('SEND FAIL', err)
-      // })
   }
 }
 
