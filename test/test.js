@@ -1,6 +1,10 @@
-var test = require('tape')
-var lib = require('../')
+const TestRunner = require('test-runner')
+const usage = require('../../')
 
-test('first', function (t) {
+const runner = new TestRunner()
+
+runner.test('first', function (t) {
 
 })
+
+runner.test('stats queued if send aborted')

@@ -81,21 +81,42 @@ runner.test('._convertToHits()', function () {
   a.strictEqual(usage._hits[2].get('cm2'), 1)
 })
 
-runner.test('.save() and .load()', function () {
+runner.test('.save() and .load(): this.stats correct', function () {
   const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
+  a.deepStrictEqual(usage.stats, [
+    { name: 'one', _metrics: { metric: 2 }}
+  ])
   return usage.save()
     .then(() => {
+      a.deepStrictEqual(usage.stats, [])
       fs.readFileSync('tmp/test/testsuite-stats.json')
     })
     .then(() => usage.load())
-    .then(stats => {
-      a.deepStrictEqual(stats, [
+    .then(() => {
+      a.deepStrictEqual(usage.stats, [
         { name: 'one', _metrics: { metric: 2 }}
       ])
     })
 })
+
+runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
+  const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
+  usage.hit({ name: 'one' }, { metric: 1 })
+  usage.hit({ name: 'one' }, { metric: 1 })
+  a.deepStrictEqual(usage.stats, [
+    { name: 'one', _metrics: { metric: 2 }}
+  ])
+  usage.saveSync()
+  a.deepStrictEqual(usage.stats, [])
+  fs.readFileSync('tmp/test/testsuite-stats.json')
+  usage.loadSync()
+  a.deepStrictEqual(usage.stats, [
+    { name: 'one', _metrics: { metric: 2 }}
+  ])
+})
+
 
 runner.test('.hit(): auto-send', function () {
   const usage = new TrackUsage(tid, 'testsuite', { sendInterval: 200, dir: 'tmp/test' })
@@ -108,9 +129,11 @@ runner.test('.hit(): auto-send', function () {
       .then(responses => a.strictEqual(responses.length, 0)),
     new Promise((resolve, reject) => {
       setTimeout(() => {
+        a.strictEqual(usage.stats.length, 1)
         usage
           .hit({ name: 'one' }, { metric: 1 })
           .then(responses => {
+            a.strictEqual(usage.stats.length, 0)
             // console.error(require('util').inspect(responses, { depth: 3, colors: true }))
             a.strictEqual(responses.length, 1)
           })
@@ -119,4 +142,16 @@ runner.test('.hit(): auto-send', function () {
       }, 210)
     })
   ])
+})
+
+runner.test('.send(): this.stats correct after', function () {
+  const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
+  usage.hit({ name: 'one' }, { metric: 1 })
+  usage.hit({ name: 'one' }, { metric: 1 })
+  a.strictEqual(usage.stats.length, 1)
+  return usage.send()
+    .then(responses => {
+      a.strictEqual(usage.stats.length, 0)
+      a.strictEqual(responses.length, 1)
+    })
 })

@@ -65,6 +65,7 @@ class AppUsageStats extends UsageStats {
     /* call .send() automatically if a sendInterval is set  */
     if (this.sendInterval) {
       const lastSent = this._getLastSent()
+      // console.error(`now: ${Date.now()}, last: ${lastSent}, diff: ${Date.now() - lastSent} interval: ${this.sendInterval}`)
       if (Date.now() - lastSent >= this.sendInterval) {
         return this.send()
       } else {
@@ -101,8 +102,12 @@ class AppUsageStats extends UsageStats {
   save () {
     return new Promise((resolve, reject) => {
       fs.writeFile(this.statsPath, JSON.stringify(this.stats), err => {
-        if (err) reject(err)
-        else resolve()
+        if (err) {
+          reject(err)
+        } else {
+          this.stats = []
+          resolve()
+        }
       })
     })
   }
@@ -112,6 +117,7 @@ class AppUsageStats extends UsageStats {
    */
   saveSync () {
     fs.writeFileSync(this.statsPath, JSON.stringify(this.stats))
+    this.stats = []
   }
 
   /**
@@ -167,12 +173,17 @@ class AppUsageStats extends UsageStats {
    */
   send () {
     this._convertToHits()
+    this._setLastSent(Date.now())
     return super.send()
       .then(responses => {
-        this._setLastSent(Date.now())
-        this.stats = []
-        return this.save().then(() => responses)
+        this.stats.length = 0
+        // console.error('SEND GOOD')
+        // return this.save().then(() => responses)
+        return responses
       })
+      // .catch(err => {
+      //   console.error('SEND FAIL', err)
+      // })
   }
 }
 
