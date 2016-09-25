@@ -12,6 +12,30 @@ const tid = 'UA-70853320-4'
 rimraf.sync('tmp/test')
 mkdirp.sync('tmp/test')
 
+function delay(time) {
+  return new Promise(function (fulfill) {
+    setTimeout(fulfill, time)
+  })
+}
+
+function responseCount (count) {
+  return function (responses) {
+    a.strictEqual(responses.length, count)
+    return responses
+  }
+}
+function unsentCount (usage, count) {
+  return function () {
+    a.strictEqual(usage.unsent.length, count)
+  }
+}
+function sentCount (usage, count) {
+  return function () {
+    a.strictEqual(usage.sent.length, count)
+  }
+}
+
+
 runner.test('.hit(dimensions, metrics)', function () {
   const usage = new TrackUsage(tid, 'testsuite')
   usage.hit({ name: 'method1', interface: 'cli' }, { option1: true, option2: 'whatever' })
@@ -19,26 +43,35 @@ runner.test('.hit(dimensions, metrics)', function () {
   usage.hit({ name: 'method1', interface: 'api' }, { option1: true })
   usage.hit({ name: 'method2', interface: 'api' }, { option1: true, option2: 'whatever' })
 
-  a.deepStrictEqual(usage.stats, [
+  a.deepStrictEqual(usage.unsent, [
     {
-      name: 'method1',
-      interface: 'cli',
-      _metrics: {
-        option1: 1, option2: 1
+      dimension: {
+        name: 'method1',
+        interface: 'cli'
+      },
+      metric: {
+        option1: 1,
+        option2: 1
       }
     },
     {
-      name: 'method1',
-      interface: 'api',
-      _metrics: {
-        option1: 2, option3: 1
+      dimension: {
+        name: 'method1',
+        interface: 'api'
+      },
+      metric: {
+        option1: 2,
+        option3: 1
       }
     },
     {
-      name: 'method2',
-      interface: 'api',
-      _metrics: {
-        option1: 1, option2: 1
+      dimension: {
+        name: 'method2',
+        interface: 'api'
+      },
+      metric: {
+        option1: 1,
+        option2: 1
       }
     },
   ])
@@ -85,18 +118,17 @@ runner.test('.save() and .load(): this.stats correct', function () {
   const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
-  a.deepStrictEqual(usage.stats, [
-    { name: 'one', _metrics: { metric: 2 }}
+  a.deepStrictEqual(usage.unsent, [
+    { dimension: { name: 'one' }, metric: { metric: 2 }}
   ])
   return usage.save()
+    .then(unsentCount(usage, 0))
+    .then(sentCount(usage, 0))
     .then(() => {
-      a.deepStrictEqual(usage.stats, [])
       fs.readFileSync('tmp/test/testsuite-stats.json')
-    })
-    .then(() => usage.load())
-    .then(() => {
-      a.deepStrictEqual(usage.stats, [
-        { name: 'one', _metrics: { metric: 2 }}
+      usage.load()
+      a.deepStrictEqual(usage.unsent, [
+        { dimension: { name: 'one' }, metric: { metric: 2 }}
       ])
     })
 })
@@ -105,42 +137,34 @@ runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
   const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
-  a.deepStrictEqual(usage.stats, [
-    { name: 'one', _metrics: { metric: 2 }}
+  a.deepStrictEqual(usage.unsent, [
+    { dimension: { name: 'one' }, metric: { metric: 2 }}
   ])
   usage.saveSync()
-  a.deepStrictEqual(usage.stats, [])
+  a.deepStrictEqual(usage.unsent, [])
   fs.readFileSync('tmp/test/testsuite-stats.json')
   usage.loadSync()
-  a.deepStrictEqual(usage.stats, [
-    { name: 'one', _metrics: { metric: 2 }}
+  a.deepStrictEqual(usage.unsent, [
+    { dimension: { name: 'one' }, metric: { metric: 2 }}
   ])
 })
 
 
-runner.test('.hit(): auto-send', function () {
+runner.test('.hit(): auto-sends after given interval', function () {
   const usage = new TrackUsage(tid, 'testsuite', { sendInterval: 200, dir: 'tmp/test' })
+
   return Promise.all([
-    usage
-      .hit({ name: 'one' }, { metric: 1 })
-      .then(responses => a.strictEqual(responses.length, 0)),
-    usage
-      .hit({ name: 'one' }, { metric: 1 })
-      .then(responses => a.strictEqual(responses.length, 0)),
-    new Promise((resolve, reject) => {
-      setTimeout(() => {
-        a.strictEqual(usage.stats.length, 1)
-        usage
+    usage.hit({ name: 'one' }, { metric: 1 }).then(noResponse),
+    usage.hit({ name: 'one' }, { metric: 1 }).then(noResponse),
+    delay(210)
+      .then(unsentCount(usage, 1))
+      .then(() => {
+        return usage
           .hit({ name: 'one' }, { metric: 1 })
-          .then(responses => {
-            a.strictEqual(usage.stats.length, 0)
-            // console.error(require('util').inspect(responses, { depth: 3, colors: true }))
-            a.strictEqual(responses.length, 1)
-          })
-          .then(resolve)
-          .catch(reject)
-      }, 210)
-    })
+          .then(responseCount(1))
+          .then(sentCount(usage, 1))
+          .then(unsentCount(usage, 0))
+      })
   ])
 })
 
@@ -148,10 +172,23 @@ runner.test('.send(): this.stats correct after', function () {
   const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
-  a.strictEqual(usage.stats.length, 1)
+  unsentCount(usage, 1)()
   return usage.send()
-    .then(responses => {
-      a.strictEqual(usage.stats.length, 0)
-      a.strictEqual(responses.length, 1)
-    })
+    .then(responseCount(1))
+    .then(unsentCount(usage, 0))
+    .then(sentCount(usage, 1))
+})
+
+runner.test('.send(): this.stats correct after ongoing hits', function () {
+  const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
+  usage.hit({ name: 'one' }, { metric: 1 })
+  usage.hit({ name: 'one' }, { metric: 1 })
+  unsentCount(usage, 1)()
+  const prom = usage.send()
+    .then(responseCount(1))
+    .then(unsentCount(usage, 2))
+    .then(sentCount(usage, 1))
+  usage.hit({ name: 'one' }, { metric: 1 })
+  usage.hit({ name: 'two' }, { metric: 1 })
+  return prom
 })

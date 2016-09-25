@@ -43,6 +43,7 @@ class AppUsageStats extends UsageStats {
    * @param {object[]} - metric-value maps
    */
   hit (dimensions, metrics) {
+    // this._mergeInHit(dimensions, metrics)
     const testValue = require('test-value')
     let stat = this.stats.find(testValue.where(dimensions))
     if (!stat) {
@@ -72,6 +73,12 @@ class AppUsageStats extends UsageStats {
         return Promise.resolve([])
       }
     }
+  }
+
+  /**
+   *
+   */
+  _mergeInStat (stat) {
   }
 
   _convertToHits () {
@@ -173,11 +180,16 @@ class AppUsageStats extends UsageStats {
    */
   send () {
     this._convertToHits()
+    const toSend = this.stats.slice()
     this.stats.length = 0
     this._setLastSent(Date.now())
     return super.send()
       .then(responses => {
         return responses
+      })
+      .catch(err => {
+        // MERGE IN TOTALS, NOT CONCAT.
+        this.stats = this.stats.concat(toSend)
       })
   }
 }
