@@ -16,7 +16,10 @@ const stats = new UsageStats('UA-987654321', 'app-name')
 * [app-usage-stats](#module_app-usage-stats)
     * [AppUsageStats](#exp_module_app-usage-stats--AppUsageStats) ⏏
         * [new AppUsageStats(tid, appName, [options])](#new_module_app-usage-stats--AppUsageStats_new)
-        * [.hit(dimensions, metrics)](#module_app-usage-stats--AppUsageStats+hit)
+        * [.unsent](#module_app-usage-stats--AppUsageStats.AppUsageStats+unsent) : <code>Array.&lt;object&gt;</code>
+        * [.sent](#module_app-usage-stats--AppUsageStats.AppUsageStats+sent) : <code>Array.&lt;object&gt;</code>
+        * [.statsPath](#module_app-usage-stats--AppUsageStats.AppUsageStats+statsPath) : <code>string</code>
+        * [.hit(dimension, metric)](#module_app-usage-stats--AppUsageStats+hit)
         * [.save()](#module_app-usage-stats--AppUsageStats+save)
         * [.saveSync()](#module_app-usage-stats--AppUsageStats+saveSync)
         * [.load()](#module_app-usage-stats--AppUsageStats+load)
@@ -40,17 +43,35 @@ const stats = new UsageStats('UA-987654321', 'app-name')
 | [options.metricMap] | <code>object</code> | A custom metric name to ID Map. |
 | [options.sendInterval] | <code>object</code> | If specified, stats will be sent no more frequently than this period. |
 
+<a name="module_app-usage-stats--AppUsageStats.AppUsageStats+unsent"></a>
+
+#### stats.unsent : <code>Array.&lt;object&gt;</code>
+Current totals not yet sent
+
+**Kind**: instance property of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
+<a name="module_app-usage-stats--AppUsageStats.AppUsageStats+sent"></a>
+
+#### stats.sent : <code>Array.&lt;object&gt;</code>
+Current totals not yet sent
+
+**Kind**: instance property of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
+<a name="module_app-usage-stats--AppUsageStats.AppUsageStats+statsPath"></a>
+
+#### stats.statsPath : <code>string</code>
+Persisted stats path
+
+**Kind**: instance property of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats+hit"></a>
 
-#### stats.hit(dimensions, metrics)
-Track a hit.
+#### stats.hit(dimension, metric)
+Track a hit. The magic dimension `name` will be mapped to a GA screenView.
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| dimensions | <code>Array.&lt;object&gt;</code> | dimension-value maps |
-| metrics | <code>Array.&lt;object&gt;</code> | metric-value maps |
+| dimension | <code>Array.&lt;object&gt;</code> | dimension-value maps |
+| metric | <code>Array.&lt;object&gt;</code> | metric-value maps |
 
 <a name="module_app-usage-stats--AppUsageStats+save"></a>
 

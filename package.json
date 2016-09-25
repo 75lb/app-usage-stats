@@ -12,9 +12,10 @@
   },
   "scripts": {
     "test": "test-runner src/test/*.js",
-    "docs": "jsdoc2md -t jsdoc2md/README.hbs lib/*.js > README.md; echo"
+    "docs": "jsdoc2md -t jsdoc2md/README.hbs src/lib/*.js > README.md; echo"
   },
   "dependencies": {
+    "array-back": "^1.0.3",
     "home-path": "^1.0.3",
     "test-value": "^2.1.0",
     "usage-stats": "^0.6.0"

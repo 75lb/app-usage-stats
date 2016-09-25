@@ -26,24 +26,24 @@ function responseCount (count) {
 }
 function unsentCount (usage, count) {
   return function () {
-    a.strictEqual(usage.unsent.length, count)
+    a.strictEqual(usage.unsent.stats.length, count)
   }
 }
 function sentCount (usage, count) {
   return function () {
-    a.strictEqual(usage.sent.length, count)
+    a.strictEqual(usage.sent.stats.length, count)
   }
 }
 
 
 runner.test('.hit(dimensions, metrics)', function () {
   const usage = new TrackUsage(tid, 'testsuite')
-  usage.hit({ name: 'method1', interface: 'cli' }, { option1: true, option2: 'whatever' })
-  usage.hit({ name: 'method1', interface: 'api' }, { option1: true, option3: 'whatever' })
-  usage.hit({ name: 'method1', interface: 'api' }, { option1: true })
-  usage.hit({ name: 'method2', interface: 'api' }, { option1: true, option2: 'whatever' })
+  usage.hit({ name: 'method1', interface: 'cli' }, { option1: 1, option2: 1 })
+  usage.hit({ name: 'method1', interface: 'api' }, { option1: 1, option3: 1 })
+  usage.hit({ name: 'method1', interface: 'api' }, { option1: 1 })
+  usage.hit({ name: 'method2', interface: 'api' }, { option1: 1, option2: 1 })
 
-  a.deepStrictEqual(usage.unsent, [
+  a.deepStrictEqual(usage.unsent.stats, [
     {
       dimension: {
         name: 'method1',
@@ -89,10 +89,10 @@ runner.test('._convertToHits()', function () {
       option3: 3
     }
   })
-  usage.hit({ name: 'method1', interface: 'cli' }, { option1: true, option2: 'whatever' })
-  usage.hit({ name: 'method1', interface: 'cli' }, { option1: true, option2: 'whatever' })
-  usage.hit({ name: 'method1', interface: 'api' }, { option1: true, option3: 'whatever' })
-  usage.hit({ name: 'method2', interface: 'api' }, { option1: true, option2: 'whatever' })
+  usage.hit({ name: 'method1', interface: 'cli' }, { option1: 1, option2: 1 })
+  usage.hit({ name: 'method1', interface: 'cli' }, { option1: 1, option2: 1 })
+  usage.hit({ name: 'method1', interface: 'api' }, { option1: 1, option3: 1 })
+  usage.hit({ name: 'method2', interface: 'api' }, { option1: 1, option2: 1 })
   usage._convertToHits()
 
   a.strictEqual(usage._hits[0].get('t'), 'screenview')
@@ -118,7 +118,7 @@ runner.test('.save() and .load(): this.stats correct', function () {
   const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
-  a.deepStrictEqual(usage.unsent, [
+  a.deepStrictEqual(usage.unsent.stats, [
     { dimension: { name: 'one' }, metric: { metric: 2 }}
   ])
   return usage.save()
@@ -126,10 +126,12 @@ runner.test('.save() and .load(): this.stats correct', function () {
     .then(sentCount(usage, 0))
     .then(() => {
       fs.readFileSync('tmp/test/testsuite-stats.json')
-      usage.load()
-      a.deepStrictEqual(usage.unsent, [
-        { dimension: { name: 'one' }, metric: { metric: 2 }}
-      ])
+      return usage.load()
+        .then(() => {
+          a.deepStrictEqual(usage.unsent.stats, [
+            { dimension: { name: 'one' }, metric: { metric: 2 }}
+          ])
+        })
     })
 })
 
@@ -137,14 +139,14 @@ runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
   const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
-  a.deepStrictEqual(usage.unsent, [
+  a.deepStrictEqual(usage.unsent.stats, [
     { dimension: { name: 'one' }, metric: { metric: 2 }}
   ])
   usage.saveSync()
-  a.deepStrictEqual(usage.unsent, [])
+  a.deepStrictEqual(usage.unsent.stats, [])
   fs.readFileSync('tmp/test/testsuite-stats.json')
   usage.loadSync()
-  a.deepStrictEqual(usage.unsent, [
+  a.deepStrictEqual(usage.unsent.stats, [
     { dimension: { name: 'one' }, metric: { metric: 2 }}
   ])
 })
@@ -152,10 +154,9 @@ runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
 
 runner.test('.hit(): auto-sends after given interval', function () {
   const usage = new TrackUsage(tid, 'testsuite', { sendInterval: 200, dir: 'tmp/test' })
-
   return Promise.all([
-    usage.hit({ name: 'one' }, { metric: 1 }).then(noResponse),
-    usage.hit({ name: 'one' }, { metric: 1 }).then(noResponse),
+    usage.hit({ name: 'one' }, { metric: 1 }).then(responseCount(0)),
+    usage.hit({ name: 'one' }, { metric: 1 }).then(responseCount(0)),
     delay(210)
       .then(unsentCount(usage, 1))
       .then(() => {
@@ -186,9 +187,14 @@ runner.test('.send(): this.stats correct after ongoing hits', function () {
   unsentCount(usage, 1)()
   const prom = usage.send()
     .then(responseCount(1))
-    .then(unsentCount(usage, 2))
+    .then(unsentCount(usage, 3))
     .then(sentCount(usage, 1))
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'two' }, { metric: 1 })
+  usage.hit({ name: 'three' }, { metric: 1 })
   return prom
+})
+
+runner.test('.hit() validation: all metrics are numeric', function () {
+
 })
