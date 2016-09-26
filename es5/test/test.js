@@ -116,7 +116,7 @@ runner.test('.save() and .load(): this.stats correct', function () {
   usage.hit({ name: 'one' }, { metric: 1 });
   a.deepStrictEqual(usage.unsent.stats, [{ dimension: { name: 'one' }, metric: { metric: 2 } }]);
   return usage.save().then(unsentCount(usage, 0)).then(sentCount(usage, 0)).then(function () {
-    fs.readFileSync('tmp/test/testsuite-unsent.json');
+    fs.readFileSync('tmp/test/UA-70853320-4-unsent.json');
     return usage.load().then(function () {
       a.deepStrictEqual(usage.unsent.stats, [{ dimension: { name: 'one' }, metric: { metric: 2 } }]);
     });
@@ -130,7 +130,7 @@ runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
   a.deepStrictEqual(usage.unsent.stats, [{ dimension: { name: 'one' }, metric: { metric: 2 } }]);
   usage.saveSync();
   a.deepStrictEqual(usage.unsent.stats, []);
-  fs.readFileSync('tmp/test/testsuite-unsent.json');
+  fs.readFileSync('tmp/test/UA-70853320-4-unsent.json');
   usage.loadSync();
   a.deepStrictEqual(usage.unsent.stats, [{ dimension: { name: 'one' }, metric: { metric: 2 } }]);
 });

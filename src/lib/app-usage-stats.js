@@ -49,12 +49,12 @@ class AppUsageStats extends UsageStats {
      * Queued stats path
      * @type {string}
      */
-    this.queuePath = path.resolve(this.dir, appName + '-unsent.json')
+    this.queuePath = path.resolve(this.dir, tid + '-unsent.json')
 
     this.dimensionMap = options.dimensionMap || {}
     this.metricMap = options.metricMap || {}
     this._lastSent = Date.now()
-    this._lastSentPath = path.resolve(this.dir, appName + '-lastSent.json')
+    this._lastSentPath = path.resolve(this.dir, tid + '-lastSent.json')
     this.sendInterval = options.sendInterval
   }
 

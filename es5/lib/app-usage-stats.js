@@ -34,12 +34,12 @@ var AppUsageStats = function (_UsageStats) {
 
     _this.sent = new Stats();
 
-    _this.queuePath = path.resolve(_this.dir, appName + '-unsent.json');
+    _this.queuePath = path.resolve(_this.dir, tid + '-unsent.json');
 
     _this.dimensionMap = options.dimensionMap || {};
     _this.metricMap = options.metricMap || {};
     _this._lastSent = Date.now();
-    _this._lastSentPath = path.resolve(_this.dir, appName + '-lastSent.json');
+    _this._lastSentPath = path.resolve(_this.dir, tid + '-lastSent.json');
     _this.sendInterval = options.sendInterval;
     return _this;
   }
