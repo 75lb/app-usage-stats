@@ -48,9 +48,6 @@ class Stats {
       }
     }
   }
-  *[Symbol.iterator]() {
-    yield* this.stats
-  }
 }
 
 module.exports = Stats

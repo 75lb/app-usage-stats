@@ -77,7 +77,7 @@ class AppUsageStats extends UsageStats {
   }
 
   _convertToHits () {
-    for (const stat of this.unsent) {
+    for (const stat of this.unsent.stats) {
       const hit = this.screenView(stat.dimension.name)
       for (const key of Object.keys(stat.dimension)) {
         if (![ 'name' ].includes(key)){
