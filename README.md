@@ -18,7 +18,7 @@ const stats = new UsageStats('UA-987654321', 'app-name')
         * [new AppUsageStats(tid, appName, [options])](#new_module_app-usage-stats--AppUsageStats_new)
         * [.unsent](#module_app-usage-stats--AppUsageStats.AppUsageStats+unsent) : <code>Array.&lt;object&gt;</code>
         * [.sent](#module_app-usage-stats--AppUsageStats.AppUsageStats+sent) : <code>Array.&lt;object&gt;</code>
-        * [.statsPath](#module_app-usage-stats--AppUsageStats.AppUsageStats+statsPath) : <code>string</code>
+        * [.queuePath](#module_app-usage-stats--AppUsageStats.AppUsageStats+queuePath) : <code>string</code>
         * [.hit(dimension, metric)](#module_app-usage-stats--AppUsageStats+hit)
         * [.save()](#module_app-usage-stats--AppUsageStats+save)
         * [.saveSync()](#module_app-usage-stats--AppUsageStats+saveSync)
@@ -55,10 +55,10 @@ Current totals not yet sent
 Current totals not yet sent
 
 **Kind**: instance property of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
-<a name="module_app-usage-stats--AppUsageStats.AppUsageStats+statsPath"></a>
+<a name="module_app-usage-stats--AppUsageStats.AppUsageStats+queuePath"></a>
 
-#### stats.statsPath : <code>string</code>
-Persisted stats path
+#### stats.queuePath : <code>string</code>
+Queued stats path
 
 **Kind**: instance property of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats+hit"></a>

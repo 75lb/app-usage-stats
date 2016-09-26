@@ -46,10 +46,10 @@ class AppUsageStats extends UsageStats {
     this.sent = new Stats()
 
     /**
-     * Persisted stats path
+     * Queued stats path
      * @type {string}
      */
-    this.statsPath = path.resolve(this.dir, appName + '-stats.json')
+    this.queuePath = path.resolve(this.dir, appName + '-unsent.json')
 
     this.dimensionMap = options.dimensionMap || {}
     this.metricMap = options.metricMap || {}
@@ -104,7 +104,7 @@ class AppUsageStats extends UsageStats {
   save () {
     const toSave = this.unsent.stats.slice()
     return new Promise((resolve, reject) => {
-      fs.writeFile(this.statsPath, JSON.stringify(toSave), err => {
+      fs.writeFile(this.queuePath, JSON.stringify(toSave), err => {
         if (err) {
           reject(err)
         } else {
@@ -120,7 +120,7 @@ class AppUsageStats extends UsageStats {
    * Save stats sync.
    */
   saveSync () {
-    fs.writeFileSync(this.statsPath, JSON.stringify(this.unsent.stats))
+    fs.writeFileSync(this.queuePath, JSON.stringify(this.unsent.stats))
     this.unsent = new Stats()
     this._saveLastSent()
   }
@@ -130,7 +130,7 @@ class AppUsageStats extends UsageStats {
    */
   load () {
     return new Promise((resolve, reject) => {
-      fs.readFile(this.statsPath, 'utf8', (err, data) => {
+      fs.readFile(this.queuePath, 'utf8', (err, data) => {
         if (err) {
           reject(err)
         } else {
@@ -148,7 +148,7 @@ class AppUsageStats extends UsageStats {
    */
   loadSync () {
     try {
-      const stats = JSON.parse(fs.readFileSync(this.statsPath, 'utf8'))
+      const stats = JSON.parse(fs.readFileSync(this.queuePath, 'utf8'))
       this.unsent.add(stats)
     } catch (err) {
       if (err.code !== 'ENOENT') {
@@ -179,12 +179,16 @@ class AppUsageStats extends UsageStats {
   send () {
     this._convertToHits()
     const toSend = clone(this.unsent.stats)
+    this.unsent = new Stats()
     this._lastSent = Date.now()
     return super.send()
       .then(responses => {
-        this.unsent.remove(toSend)
         this.sent.add(toSend)
         return responses
+      })
+      .catch(err => {
+        this.unsent.add(toSend)
+        throw err
       })
   }
 }

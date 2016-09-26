@@ -125,7 +125,7 @@ runner.test('.save() and .load(): this.stats correct', function () {
     .then(unsentCount(usage, 0))
     .then(sentCount(usage, 0))
     .then(() => {
-      fs.readFileSync('tmp/test/testsuite-stats.json')
+      fs.readFileSync('tmp/test/testsuite-unsent.json')
       return usage.load()
         .then(() => {
           a.deepStrictEqual(usage.unsent.stats, [
@@ -144,7 +144,7 @@ runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
   ])
   usage.saveSync()
   a.deepStrictEqual(usage.unsent.stats, [])
-  fs.readFileSync('tmp/test/testsuite-stats.json')
+  fs.readFileSync('tmp/test/testsuite-unsent.json')
   usage.loadSync()
   a.deepStrictEqual(usage.unsent.stats, [
     { dimension: { name: 'one' }, metric: { metric: 2 }}
@@ -193,6 +193,32 @@ runner.test('.send(): this.stats correct after ongoing hits', function () {
   usage.hit({ name: 'two' }, { metric: 1 })
   usage.hit({ name: 'three' }, { metric: 1 })
   return prom
+})
+
+runner.test('.send(): multiple invocations', function () {
+  const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
+  usage.hit({ name: 'one' }, { metric: 1 })
+  usage.hit({ name: 'one' }, { metric: 1 })
+  unsentCount(usage, 1)()
+  /* returns first */
+  const prom = usage.send()
+    .then(responseCount(1))
+    .then(unsentCount(usage, 3))
+    .then(sentCount(usage, 1))
+
+  unsentCount(usage, 0)()
+  usage.hit({ name: 'two' }, { metric: 1 })
+  usage.hit({ name: 'three' }, { metric: 1 })
+  usage.hit({ name: 'four' }, { metric: 1 })
+  unsentCount(usage, 3)()
+
+  const prom2 = delay(3000)
+    .then(usage.send.bind(usage))
+    .then(responseCount(1))
+    .then(unsentCount(usage, 0))
+    .then(sentCount(usage, 4))
+
+  return Promise.all([ prom, prom2 ])
 })
 
 runner.test('.hit() validation: all metrics are numeric', function () {
