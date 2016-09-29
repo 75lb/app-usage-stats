@@ -21,12 +21,10 @@ var Stats = require('./stats');
 var AppUsageStats = function (_UsageStats) {
   _inherits(AppUsageStats, _UsageStats);
 
-  function AppUsageStats(tid, appName, options) {
+  function AppUsageStats(tid, options) {
     _classCallCheck(this, AppUsageStats);
 
-    if (!appName) throw new Error('an appName is required');
     options = options || {};
-    options.name = appName;
 
     var _this = _possibleConstructorReturn(this, (AppUsageStats.__proto__ || Object.getPrototypeOf(AppUsageStats)).call(this, tid, options));
 
@@ -46,12 +44,12 @@ var AppUsageStats = function (_UsageStats) {
 
   _createClass(AppUsageStats, [{
     key: 'hit',
-    value: function hit(dimension, metric) {
+    value: function hit(dimension, metric, options) {
       this.unsent.add({ dimension: dimension, metric: metric });
 
       if (this.sendInterval) {
         if (Date.now() - this._lastSent >= this.sendInterval) {
-          return this.send();
+          return this.send(options);
         } else {
           return Promise.resolve([]);
         }
@@ -219,14 +217,14 @@ var AppUsageStats = function (_UsageStats) {
     }
   }, {
     key: 'send',
-    value: function send() {
+    value: function send(options) {
       var _this4 = this;
 
       this._convertToHits();
       var toSend = clone(this.unsent.stats);
       this.unsent = new Stats();
       this._lastSent = Date.now();
-      return _get(AppUsageStats.prototype.__proto__ || Object.getPrototypeOf(AppUsageStats.prototype), 'send', this).call(this).then(function (responses) {
+      return _get(AppUsageStats.prototype.__proto__ || Object.getPrototypeOf(AppUsageStats.prototype), 'send', this).call(this, options).then(function (responses) {
         _this4.sent.add(toSend);
         return responses;
       }).catch(function (err) {

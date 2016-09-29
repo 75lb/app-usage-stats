@@ -8,6 +8,7 @@ const arrayify = require('array-back')
 const Stats = require('./stats')
 
 /**
+ * A convention for tracking javascript application usage.
  * @module app-usage-stats
  * @example
  * const UsageStats = require('app-usage-stats')
@@ -21,16 +22,13 @@ const Stats = require('./stats')
 class AppUsageStats extends UsageStats {
   /**
    * @param {string} - Google Analytics tracking ID
-   * @param {string} - App name
    * @param [options] {object}
    * @param [options.dimensionMap] {object} - A custom dimension name to ID Map.
    * @param [options.metricMap] {object} - A custom metric name to ID Map.
    * @param [options.sendInterval] {object} - If specified, stats will be sent no more frequently than this period.
    */
-  constructor (tid, appName, options) {
-    if (!appName) throw new Error('an appName is required')
+  constructor (tid, options) {
     options = options || {}
-    options.name = appName
     super(tid, options)
 
     /**
@@ -62,14 +60,16 @@ class AppUsageStats extends UsageStats {
    * Track a hit. The magic dimension `name` will be mapped to a GA screenView.
    * @param {object[]} - dimension-value maps
    * @param {object[]} - metric-value maps
+   * @param [options] {object}
+   * @param [options.timeout] {number} - A maxium wait period in ms, after which any pending requests will be aborted.
    */
-  hit (dimension, metric) {
+  hit (dimension, metric, options) {
     this.unsent.add({ dimension, metric })
 
     /* call .send() automatically if a sendInterval is set  */
     if (this.sendInterval) {
       if (Date.now() - this._lastSent >= this.sendInterval) {
-        return this.send()
+        return this.send(options)
       } else {
         return Promise.resolve([])
       }
@@ -175,13 +175,15 @@ class AppUsageStats extends UsageStats {
 
   /**
    * Send and reset stats.
-   */
-  send () {
+   * @param [options] {object}
+   * @param [options.timeout] {number} - A maxium wait period in ms, after which any pending requests will be aborted.
+  */
+  send (options) {
     this._convertToHits()
     const toSend = clone(this.unsent.stats)
     this.unsent = new Stats()
     this._lastSent = Date.now()
-    return super.send()
+    return super.send(options)
       .then(responses => {
         this.sent.add(toSend)
         return responses

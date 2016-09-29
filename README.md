@@ -7,6 +7,8 @@
 <a name="module_app-usage-stats"></a>
 
 ## app-usage-stats
+A convention for tracking javascript application usage.
+
 **Example**  
 ```js
 const UsageStats = require('app-usage-stats')
@@ -15,16 +17,16 @@ const stats = new UsageStats('UA-987654321', 'app-name')
 
 * [app-usage-stats](#module_app-usage-stats)
     * [AppUsageStats](#exp_module_app-usage-stats--AppUsageStats) ⏏
-        * [new AppUsageStats(tid, appName, [options])](#new_module_app-usage-stats--AppUsageStats_new)
+        * [new AppUsageStats(tid, [options])](#new_module_app-usage-stats--AppUsageStats_new)
         * [.unsent](#module_app-usage-stats--AppUsageStats.AppUsageStats+unsent) : <code>Array.&lt;object&gt;</code>
         * [.sent](#module_app-usage-stats--AppUsageStats.AppUsageStats+sent) : <code>Array.&lt;object&gt;</code>
         * [.queuePath](#module_app-usage-stats--AppUsageStats.AppUsageStats+queuePath) : <code>string</code>
-        * [.hit(dimension, metric)](#module_app-usage-stats--AppUsageStats+hit)
+        * [.hit(dimension, metric, [options])](#module_app-usage-stats--AppUsageStats+hit)
         * [.save()](#module_app-usage-stats--AppUsageStats+save)
         * [.saveSync()](#module_app-usage-stats--AppUsageStats+saveSync)
         * [.load()](#module_app-usage-stats--AppUsageStats+load)
         * [.loadSync()](#module_app-usage-stats--AppUsageStats+loadSync)
-        * [.send()](#module_app-usage-stats--AppUsageStats+send)
+        * [.send([options])](#module_app-usage-stats--AppUsageStats+send)
 
 <a name="exp_module_app-usage-stats--AppUsageStats"></a>
 
@@ -32,12 +34,11 @@ const stats = new UsageStats('UA-987654321', 'app-name')
 **Kind**: Exported class  
 <a name="new_module_app-usage-stats--AppUsageStats_new"></a>
 
-#### new AppUsageStats(tid, appName, [options])
+#### new AppUsageStats(tid, [options])
 
 | Param | Type | Description |
 | --- | --- | --- |
 | tid | <code>string</code> | Google Analytics tracking ID |
-| appName | <code>string</code> | App name |
 | [options] | <code>object</code> |  |
 | [options.dimensionMap] | <code>object</code> | A custom dimension name to ID Map. |
 | [options.metricMap] | <code>object</code> | A custom metric name to ID Map. |
@@ -63,7 +64,7 @@ Queued stats path
 **Kind**: instance property of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats+hit"></a>
 
-#### stats.hit(dimension, metric)
+#### stats.hit(dimension, metric, [options])
 Track a hit. The magic dimension `name` will be mapped to a GA screenView.
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
@@ -72,6 +73,8 @@ Track a hit. The magic dimension `name` will be mapped to a GA screenView.
 | --- | --- | --- |
 | dimension | <code>Array.&lt;object&gt;</code> | dimension-value maps |
 | metric | <code>Array.&lt;object&gt;</code> | metric-value maps |
+| [options] | <code>object</code> |  |
+| [options.timeout] | <code>number</code> | A maxium wait period in ms, after which any pending requests will be aborted. |
 
 <a name="module_app-usage-stats--AppUsageStats+save"></a>
 
@@ -99,10 +102,16 @@ Loads stats sync.
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats+send"></a>
 
-#### stats.send()
+#### stats.send([options])
 Send and reset stats.
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [options] | <code>object</code> |  |
+| [options.timeout] | <code>number</code> | A maxium wait period in ms, after which any pending requests will be aborted. |
+
 
 * * *
 

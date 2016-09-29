@@ -37,7 +37,7 @@ function sentCount (usage, count) {
 
 
 runner.test('.hit(dimensions, metrics)', function () {
-  const usage = new TrackUsage(tid, 'testsuite')
+  const usage = new TrackUsage(tid)
   usage.hit({ name: 'method1', interface: 'cli' }, { option1: 1, option2: 1 })
   usage.hit({ name: 'method1', interface: 'api' }, { option1: 1, option3: 1 })
   usage.hit({ name: 'method1', interface: 'api' }, { option1: 1 })
@@ -78,7 +78,7 @@ runner.test('.hit(dimensions, metrics)', function () {
 })
 
 runner.test('._convertToHits()', function () {
-  const usage = new TrackUsage(tid, 'testsuite', {
+  const usage = new TrackUsage(tid, {
     dimensionMap: {
       name: 'screenview',
       interface: 1
@@ -115,7 +115,7 @@ runner.test('._convertToHits()', function () {
 })
 
 runner.test('.save() and .load(): this.stats correct', function () {
-  const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
+  const usage = new TrackUsage(tid, { dir: 'tmp/test' })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
   a.deepStrictEqual(usage.unsent.stats, [
@@ -136,7 +136,7 @@ runner.test('.save() and .load(): this.stats correct', function () {
 })
 
 runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
-  const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
+  const usage = new TrackUsage(tid, { dir: 'tmp/test' })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
   a.deepStrictEqual(usage.unsent.stats, [
@@ -153,7 +153,7 @@ runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
 
 
 runner.test('.hit(): auto-sends after given interval', function () {
-  const usage = new TrackUsage(tid, 'testsuite', { sendInterval: 200, dir: 'tmp/test' })
+  const usage = new TrackUsage(tid, { sendInterval: 200, dir: 'tmp/test' })
   return Promise.all([
     usage.hit({ name: 'one' }, { metric: 1 }).then(responseCount(0)),
     usage.hit({ name: 'one' }, { metric: 1 }).then(responseCount(0)),
@@ -170,7 +170,7 @@ runner.test('.hit(): auto-sends after given interval', function () {
 })
 
 runner.test('.send(): this.stats correct after', function () {
-  const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
+  const usage = new TrackUsage(tid, { dir: 'tmp/test' })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
   unsentCount(usage, 1)()
@@ -181,7 +181,7 @@ runner.test('.send(): this.stats correct after', function () {
 })
 
 runner.test('.send(): this.stats correct after ongoing hits', function () {
-  const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
+  const usage = new TrackUsage(tid, { dir: 'tmp/test' })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
   unsentCount(usage, 1)()
@@ -196,7 +196,7 @@ runner.test('.send(): this.stats correct after ongoing hits', function () {
 })
 
 runner.test('.send(): multiple invocations', function () {
-  const usage = new TrackUsage(tid, 'testsuite', { dir: 'tmp/test' })
+  const usage = new TrackUsage(tid, { dir: 'tmp/test' })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
   unsentCount(usage, 1)()

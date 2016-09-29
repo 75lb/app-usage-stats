@@ -37,7 +37,7 @@ function sentCount (usage, count) {
 
 
 runner.test('.hit(dimensions, metrics)', function () {
-  const usage = new TrackUsage(tid, 'testsuite')
+  const usage = new TrackUsage(tid)
   usage.hit({ name: 'method1', interface: 'cli' }, { option1: 1, option2: 1 })
   usage.hit({ name: 'method1', interface: 'api' }, { option1: 1, option3: 1 })
   usage.hit({ name: 'method1', interface: 'api' }, { option1: 1 })
