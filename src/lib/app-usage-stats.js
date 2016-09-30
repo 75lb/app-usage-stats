@@ -64,6 +64,7 @@ class AppUsageStats extends UsageStats {
    * @param [options.timeout] {number} - A maxium wait period in ms, after which any pending requests will be aborted.
    */
   hit (dimension, metric, options) {
+    if (this._disabled) return Promise.resolve([])
     this.unsent.add({ dimension, metric })
 
     /* call .send() automatically if a sendInterval is set  */
@@ -179,6 +180,7 @@ class AppUsageStats extends UsageStats {
    * @param [options.timeout] {number} - A maxium wait period in ms, after which any pending requests will be aborted.
   */
   send (options) {
+    if (this._disabled) return Promise.resolve([])
     this._convertToHits()
     const toSend = clone(this.unsent.stats)
     this.unsent = new Stats()

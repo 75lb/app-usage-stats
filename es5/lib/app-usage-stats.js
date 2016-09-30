@@ -45,6 +45,7 @@ var AppUsageStats = function (_UsageStats) {
   _createClass(AppUsageStats, [{
     key: 'hit',
     value: function hit(dimension, metric, options) {
+      if (this._disabled) return Promise.resolve([]);
       this.unsent.add({ dimension: dimension, metric: metric });
 
       if (this.sendInterval) {
@@ -220,6 +221,7 @@ var AppUsageStats = function (_UsageStats) {
     value: function send(options) {
       var _this4 = this;
 
+      if (this._disabled) return Promise.resolve([]);
       this._convertToHits();
       var toSend = clone(this.unsent.stats);
       this.unsent = new Stats();
