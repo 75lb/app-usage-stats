@@ -17,15 +17,19 @@ var Stats = function () {
   _createClass(Stats, [{
     key: 'add',
     value: function add(stats) {
+      var _this = this;
+
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
       var _iteratorError = undefined;
 
       try {
-        for (var _iterator = arrayify(stats)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var _loop = function _loop() {
           var toAdd = _step.value;
 
-          var stat = this.stats.find(testValue.where({ dimension: toAdd.dimension }));
+          var stat = _this.stats.find(function (stat) {
+            return objectsEqual(stat.dimension, toAdd.dimension);
+          });
           if (!stat) {
             stat = {
               dimension: toAdd.dimension,
@@ -56,7 +60,7 @@ var Stats = function () {
               }
             }
 
-            this.stats.push(stat);
+            _this.stats.push(stat);
           } else {
             var _iteratorNormalCompletion3 = true;
             var _didIteratorError3 = false;
@@ -87,6 +91,10 @@ var Stats = function () {
               }
             }
           }
+        };
+
+        for (var _iterator = arrayify(stats)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          _loop();
         }
       } catch (err) {
         _didIteratorError = true;
@@ -106,17 +114,19 @@ var Stats = function () {
   }, {
     key: 'remove',
     value: function remove(stats) {
-      var _this = this;
+      var _this2 = this;
 
       var _iteratorNormalCompletion4 = true;
       var _didIteratorError4 = false;
       var _iteratorError4 = undefined;
 
       try {
-        var _loop = function _loop() {
+        var _loop2 = function _loop2() {
           var toRemove = _step4.value;
 
-          var stat = _this.stats.find(testValue.where({ dimension: toRemove.dimension }));
+          var stat = _this2.stats.find(function (stat) {
+            return objectsEqual(stat.dimension, toRemove.dimension);
+          });
           if (stat) {
             var _iteratorNormalCompletion5 = true;
             var _didIteratorError5 = false;
@@ -149,13 +159,13 @@ var Stats = function () {
               return stat.metric[curr] + prev;
             }, 0);
             if (metricTotal === 0) {
-              _this.stats.splice(_this.stats.indexOf(stat), 1);
+              _this2.stats.splice(_this2.stats.indexOf(stat), 1);
             }
           }
         };
 
         for (var _iterator4 = arrayify(stats)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-          _loop();
+          _loop2();
         }
       } catch (err) {
         _didIteratorError4 = true;
@@ -178,3 +188,7 @@ var Stats = function () {
 }();
 
 module.exports = Stats;
+
+function objectsEqual(a, b) {
+  return Object.keys(a).length === Object.keys(b).length && testValue(a, b);
+}

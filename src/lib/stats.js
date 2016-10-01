@@ -8,7 +8,7 @@ class Stats {
   }
   add (stats) {
     for (const toAdd of arrayify(stats)) {
-      let stat = this.stats.find(testValue.where({ dimension: toAdd.dimension }))
+      let stat = this.stats.find(stat => objectsEqual(stat.dimension, toAdd.dimension))
       if (!stat) {
         stat = {
           dimension: toAdd.dimension,
@@ -31,7 +31,7 @@ class Stats {
   }
   remove (stats) {
     for (const toRemove of arrayify(stats)) {
-      let stat = this.stats.find(testValue.where({ dimension: toRemove.dimension }))
+      let stat = this.stats.find(stat => objectsEqual(stat.dimension, toRemove.dimension))
       if (stat) {
         for (const metricName of Object.keys(toRemove.metric)) {
           if (stat.metric[metricName]) {
@@ -51,3 +51,7 @@ class Stats {
 }
 
 module.exports = Stats
+
+function objectsEqual (a, b) {
+  return Object.keys(a).length === Object.keys(b).length && testValue(a, b)
+}
