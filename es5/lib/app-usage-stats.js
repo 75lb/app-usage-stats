@@ -46,10 +46,11 @@ var AppUsageStats = function (_UsageStats) {
     key: 'hit',
     value: function hit(dimension, metric, options) {
       if (this._disabled) return Promise.resolve([]);
+      options = options || {};
       this.unsent.add({ dimension: dimension, metric: metric });
 
       if (this.sendInterval) {
-        if (Date.now() - this._lastSent >= this.sendInterval) {
+        if (Date.now() - this._lastSent >= this.sendInterval || options.send) {
           return this.send(options);
         } else {
           return Promise.resolve([]);

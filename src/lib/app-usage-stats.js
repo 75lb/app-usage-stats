@@ -62,14 +62,16 @@ class AppUsageStats extends UsageStats {
    * @param {object[]} - metric-value maps
    * @param [options] {object}
    * @param [options.timeout] {number} - A maxium wait period in ms, after which any pending requests will be aborted.
+   * @param [options.send] {number} - Each hit will be sent.
    */
   hit (dimension, metric, options) {
     if (this._disabled) return Promise.resolve([])
+    options = options || {}
     this.unsent.add({ dimension, metric })
 
     /* call .send() automatically if a sendInterval is set  */
     if (this.sendInterval) {
-      if (Date.now() - this._lastSent >= this.sendInterval) {
+      if (Date.now() - this._lastSent >= this.sendInterval || options.send) {
         return this.send(options)
       } else {
         return Promise.resolve([])

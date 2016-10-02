@@ -169,6 +169,20 @@ runner.test('.hit(): auto-sends after given interval', function () {
   ])
 })
 
+runner.test('.hit({ send: true }): override auto-send interval', function () {
+  const usage = new TrackUsage(tid, { sendInterval: 20000, dir: 'tmp/test' })
+  return usage.hit({ name: 'one' }, { metric: 1 }, { send: true })
+    .then(responseCount(1))
+    .then(unsentCount(usage, 0))
+    .then(sentCount(usage, 1))
+    .then(() => {
+      return usage.hit({ name: 'two' }, { metric: 1 }, { send: true })
+      .then(responseCount(1))
+      .then(unsentCount(usage, 0))
+      .then(sentCount(usage, 2))
+    })
+})
+
 runner.test('.send(): this.stats correct after', function () {
   const usage = new TrackUsage(tid, { dir: 'tmp/test' })
   usage.hit({ name: 'one' }, { metric: 1 })
@@ -205,6 +219,12 @@ runner.test('.send(): multiple invocations', function () {
     .then(responseCount(1))
     .then(unsentCount(usage, 3))
     .then(sentCount(usage, 1))
+    .then(() => {
+      return usage.send()
+        .then(responseCount(1))
+        .then(unsentCount(usage, 0))
+        .then(sentCount(usage, 4))
+    })
 
   unsentCount(usage, 0)()
   usage.hit({ name: 'two' }, { metric: 1 })
@@ -212,15 +232,7 @@ runner.test('.send(): multiple invocations', function () {
   usage.hit({ name: 'four' }, { metric: 1 })
   unsentCount(usage, 3)()
 
-  const prom2 = delay(3000)
-    .then(usage.send.bind(usage))
-    .then(responseCount(1))
-    .then(unsentCount(usage, 0))
-    .then(sentCount(usage, 4))
-
-  return Promise.all([ prom, prom2 ])
+  return prom
 })
 
-runner.test('.hit() validation: all metrics are numeric', function () {
-
-})
+runner.test('.hit() validation: all metrics are numeric')
