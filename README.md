@@ -12,11 +12,11 @@ A convention for tracking javascript application usage.
 **Example**  
 ```js
 const UsageStats = require('app-usage-stats')
-const stats = new UsageStats('UA-987654321', 'app-name')
+const stats = new UsageStats('UA-987654321')
 ```
 
 * [app-usage-stats](#module_app-usage-stats)
-    * [AppUsageStats](#exp_module_app-usage-stats--AppUsageStats) ⏏
+    * [AppUsageStats](#exp_module_app-usage-stats--AppUsageStats) ⇐ <code>[UsageStats](https://github.com/75lb/usage-stats)</code> ⏏
         * [new AppUsageStats(tid, [options])](#new_module_app-usage-stats--AppUsageStats_new)
         * [.unsent](#module_app-usage-stats--AppUsageStats.AppUsageStats+unsent) : <code>Array.&lt;object&gt;</code>
         * [.sent](#module_app-usage-stats--AppUsageStats.AppUsageStats+sent) : <code>Array.&lt;object&gt;</code>
@@ -30,8 +30,9 @@ const stats = new UsageStats('UA-987654321', 'app-name')
 
 <a name="exp_module_app-usage-stats--AppUsageStats"></a>
 
-### AppUsageStats ⏏
+### AppUsageStats ⇐ <code>[UsageStats](https://github.com/75lb/usage-stats)</code> ⏏
 **Kind**: Exported class  
+**Extends:** <code>[UsageStats](https://github.com/75lb/usage-stats)</code>  
 <a name="new_module_app-usage-stats--AppUsageStats_new"></a>
 
 #### new AppUsageStats(tid, [options])
@@ -46,25 +47,25 @@ const stats = new UsageStats('UA-987654321', 'app-name')
 
 <a name="module_app-usage-stats--AppUsageStats.AppUsageStats+unsent"></a>
 
-#### stats.unsent : <code>Array.&lt;object&gt;</code>
+#### usage.unsent : <code>Array.&lt;object&gt;</code>
 Current totals not yet sent
 
 **Kind**: instance property of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats.AppUsageStats+sent"></a>
 
-#### stats.sent : <code>Array.&lt;object&gt;</code>
+#### usage.sent : <code>Array.&lt;object&gt;</code>
 Current totals not yet sent
 
 **Kind**: instance property of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats.AppUsageStats+queuePath"></a>
 
-#### stats.queuePath : <code>string</code>
+#### usage.queuePath : <code>string</code>
 Queued stats path
 
 **Kind**: instance property of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats+hit"></a>
 
-#### stats.hit(dimension, metric, [options])
+#### usage.hit(dimension, metric, [options])
 Track a hit. The magic dimension `name` will be mapped to a GA screenView.
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
@@ -75,34 +76,35 @@ Track a hit. The magic dimension `name` will be mapped to a GA screenView.
 | metric | <code>Array.&lt;object&gt;</code> | metric-value maps |
 | [options] | <code>object</code> |  |
 | [options.timeout] | <code>number</code> | A maxium wait period in ms, after which any pending requests will be aborted. |
+| [options.send] | <code>number</code> | Each hit will be sent. |
 
 <a name="module_app-usage-stats--AppUsageStats+save"></a>
 
-#### stats.save()
+#### usage.save()
 Save stats
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats+saveSync"></a>
 
-#### stats.saveSync()
+#### usage.saveSync()
 Save stats sync.
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats+load"></a>
 
-#### stats.load()
+#### usage.load()
 Load stats
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats+loadSync"></a>
 
-#### stats.loadSync()
+#### usage.loadSync()
 Loads stats sync.
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats+send"></a>
 
-#### stats.send([options])
+#### usage.send([options])
 Send and reset stats.
 
 **Kind**: instance method of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  

@@ -9,12 +9,13 @@ const Stats = require('./stats')
  * @module app-usage-stats
  * @example
  * const UsageStats = require('app-usage-stats')
- * const stats = new UsageStats('UA-987654321', 'app-name')
+ * const stats = new UsageStats('UA-987654321')
  */
 
 /**
  * @alias module:app-usage-stats
- * @typicalname stats
+ * @typicalname usage
+ * @extends {external:UsageStats}
  */
 class AppUsageStats extends UsageStats {
   /**
@@ -201,3 +202,8 @@ function clone (object) {
 }
 
 module.exports = AppUsageStats
+
+/**
+ * @external UsageStats
+ * @see https://github.com/75lb/usage-stats
+ */
