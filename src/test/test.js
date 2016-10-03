@@ -5,6 +5,7 @@ const a = require('core-assert')
 const fs = require('fs')
 const rimraf = require('rimraf')
 const mkdirp = require('mkdirp')
+const path = require('path')
 
 const runner = new TestRunner()
 const tid = 'UA-70853320-4'
@@ -114,7 +115,7 @@ runner.test('._convertToHits()', function () {
 })
 
 runner.test('.save() and .load(): this.stats correct', function () {
-  const usage = new TrackUsage(tid, { dir: 'tmp/test' })
+  const usage = new TrackUsage(tid, { dir: `tmp/test${this.index}` })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
   a.deepStrictEqual(usage.unsent.stats, [
@@ -124,7 +125,7 @@ runner.test('.save() and .load(): this.stats correct', function () {
     .then(unsentCount(usage, 0))
     .then(sentCount(usage, 0))
     .then(() => {
-      fs.readFileSync('tmp/test/UA-70853320-4-unsent.json')
+      fs.readFileSync(`tmp/test${this.index}/UA-70853320-4-unsent.json`)
       return usage.load()
         .then(() => {
           a.deepStrictEqual(usage.unsent.stats, [
@@ -135,7 +136,7 @@ runner.test('.save() and .load(): this.stats correct', function () {
 })
 
 runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
-  const usage = new TrackUsage(tid, { dir: 'tmp/test' })
+  const usage = new TrackUsage(tid, { dir: `tmp/test${this.index}` })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
   a.deepStrictEqual(usage.unsent.stats, [
@@ -143,7 +144,7 @@ runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
   ])
   usage.saveSync()
   a.deepStrictEqual(usage.unsent.stats, [])
-  fs.readFileSync('tmp/test/UA-70853320-4-unsent.json')
+  fs.readFileSync(`tmp/test${this.index}/UA-70853320-4-unsent.json`)
   usage.loadSync()
   a.deepStrictEqual(usage.unsent.stats, [
     { dimension: { name: 'one' }, metric: { metric: 2 } }
@@ -151,7 +152,7 @@ runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
 })
 
 runner.test('.hit(): auto-sends after given interval', function () {
-  const usage = new TrackUsage(tid, { sendInterval: 200, dir: 'tmp/test' })
+  const usage = new TrackUsage(tid, { sendInterval: 200, dir: `tmp/test${this.index}` })
   return Promise.all([
     usage.hit({ name: 'one' }, { metric: 1 }).then(responseCount(0)),
     usage.hit({ name: 'one' }, { metric: 1 }).then(responseCount(0)),
@@ -168,7 +169,7 @@ runner.test('.hit(): auto-sends after given interval', function () {
 })
 
 runner.test('.hit({ send: true }): override auto-send interval', function () {
-  const usage = new TrackUsage(tid, { sendInterval: 20000, dir: 'tmp/test' })
+  const usage = new TrackUsage(tid, { sendInterval: 20000, dir: `tmp/test${this.index}` })
   return usage.hit({ name: 'one' }, { metric: 1 }, { send: true })
     .then(responseCount(1))
     .then(unsentCount(usage, 0))
@@ -182,7 +183,7 @@ runner.test('.hit({ send: true }): override auto-send interval', function () {
 })
 
 runner.test('.send(): this.stats correct after', function () {
-  const usage = new TrackUsage(tid, { dir: 'tmp/test' })
+  const usage = new TrackUsage(tid, { dir: `tmp/test${this.index}` })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
   unsentCount(usage, 1)()
@@ -193,7 +194,7 @@ runner.test('.send(): this.stats correct after', function () {
 })
 
 runner.test('.send(): this.stats correct after ongoing hits', function () {
-  const usage = new TrackUsage(tid, { dir: 'tmp/test' })
+  const usage = new TrackUsage(tid, { dir: `tmp/test${this.index}` })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
   unsentCount(usage, 1)()
@@ -208,7 +209,7 @@ runner.test('.send(): this.stats correct after ongoing hits', function () {
 })
 
 runner.test('.send(): multiple invocations', function () {
-  const usage = new TrackUsage(tid, { dir: 'tmp/test' })
+  const usage = new TrackUsage(tid, { dir: `tmp/test${this.index}` })
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
   unsentCount(usage, 1)()
