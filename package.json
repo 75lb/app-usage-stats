@@ -1,7 +1,7 @@
 {
   "name": "app-usage-stats",
   "author": "Lloyd Brookes <75pound@gmail.com>",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "A convention for tracking javascript application usage",
   "repository": "https://github.com/75lb/app-usage-stats.git",
   "license": "MIT",
@@ -30,6 +30,8 @@
     "test-runner": "^0.2.4"
   },
   "standard": {
-    "ignore": [ "es5" ]
+    "ignore": [
+      "es5"
+    ]
   }
 }
