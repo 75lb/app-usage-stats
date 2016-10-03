@@ -4,7 +4,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var testValue = require('test-value');
 var arrayify = require('array-back');
 
 var Stats = function () {
@@ -190,5 +189,6 @@ var Stats = function () {
 module.exports = Stats;
 
 function objectsEqual(a, b) {
+  var testValue = require('test-value');
   return Object.keys(a).length === Object.keys(b).length && testValue(a, b);
 }

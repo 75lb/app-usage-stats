@@ -12,9 +12,9 @@ const tid = 'UA-70853320-4'
 rimraf.sync('tmp/test')
 mkdirp.sync('tmp/test')
 
-function delay(time) {
-  return new Promise(function (fulfill) {
-    setTimeout(fulfill, time)
+function delay (time) {
+  return new Promise(function (resolve, reject) {
+    setTimeout(resolve, time)
   })
 }
 
@@ -34,7 +34,6 @@ function sentCount (usage, count) {
     a.strictEqual(usage.sent.stats.length, count)
   }
 }
-
 
 runner.test('.hit(dimensions, metrics)', function () {
   const usage = new TrackUsage(tid)
@@ -73,7 +72,7 @@ runner.test('.hit(dimensions, metrics)', function () {
         option1: 1,
         option2: 1
       }
-    },
+    }
   ])
 })
 
@@ -119,7 +118,7 @@ runner.test('.save() and .load(): this.stats correct', function () {
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
   a.deepStrictEqual(usage.unsent.stats, [
-    { dimension: { name: 'one' }, metric: { metric: 2 }}
+    { dimension: { name: 'one' }, metric: { metric: 2 } }
   ])
   return usage.save()
     .then(unsentCount(usage, 0))
@@ -129,7 +128,7 @@ runner.test('.save() and .load(): this.stats correct', function () {
       return usage.load()
         .then(() => {
           a.deepStrictEqual(usage.unsent.stats, [
-            { dimension: { name: 'one' }, metric: { metric: 2 }}
+            { dimension: { name: 'one' }, metric: { metric: 2 } }
           ])
         })
     })
@@ -140,17 +139,16 @@ runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
   usage.hit({ name: 'one' }, { metric: 1 })
   usage.hit({ name: 'one' }, { metric: 1 })
   a.deepStrictEqual(usage.unsent.stats, [
-    { dimension: { name: 'one' }, metric: { metric: 2 }}
+    { dimension: { name: 'one' }, metric: { metric: 2 } }
   ])
   usage.saveSync()
   a.deepStrictEqual(usage.unsent.stats, [])
   fs.readFileSync('tmp/test/UA-70853320-4-unsent.json')
   usage.loadSync()
   a.deepStrictEqual(usage.unsent.stats, [
-    { dimension: { name: 'one' }, metric: { metric: 2 }}
+    { dimension: { name: 'one' }, metric: { metric: 2 } }
   ])
 })
-
 
 runner.test('.hit(): auto-sends after given interval', function () {
   const usage = new TrackUsage(tid, { sendInterval: 200, dir: 'tmp/test' })

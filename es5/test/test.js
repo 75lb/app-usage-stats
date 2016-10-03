@@ -14,8 +14,8 @@ rimraf.sync('tmp/test');
 mkdirp.sync('tmp/test');
 
 function delay(time) {
-  return new Promise(function (fulfill) {
-    setTimeout(fulfill, time);
+  return new Promise(function (resolve, reject) {
+    setTimeout(resolve, time);
   });
 }
 

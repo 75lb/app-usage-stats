@@ -1,11 +1,9 @@
 'use strict'
 const TestRunner = require('test-runner')
-const TrackUsage = require('../../')
 const Stats = require('../lib/stats')
 const a = require('core-assert')
 
 const runner = new TestRunner()
-const tid = 'UA-70853320-4'
 
 runner.test('.add(): arbitrary metric value', function () {
   const stats = new Stats()

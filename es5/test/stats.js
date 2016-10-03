@@ -1,12 +1,10 @@
 'use strict';
 
 var TestRunner = require('test-runner');
-var TrackUsage = require('../../');
 var Stats = require('../lib/stats');
 var a = require('core-assert');
 
 var runner = new TestRunner();
-var tid = 'UA-70853320-4';
 
 runner.test('.add(): arbitrary metric value', function () {
   var stats = new Stats();

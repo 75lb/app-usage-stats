@@ -1,10 +1,7 @@
 'use strict'
-const os = require('os')
 const UsageStats = require('usage-stats')
 const fs = require('fs')
 const path = require('path')
-const testValue = require('test-value')
-const arrayify = require('array-back')
 const Stats = require('./stats')
 
 /**
@@ -83,7 +80,7 @@ class AppUsageStats extends UsageStats {
     for (const stat of this.unsent.stats) {
       const hit = this.screenView(stat.dimension.name)
       for (const key of Object.keys(stat.dimension)) {
-        if (![ 'name' ].includes(key)){
+        if (![ 'name' ].includes(key)) {
           const dId = this.dimensionMap[key]
           if (dId) {
             hit.set(`cd${dId}`, stat.dimension[key])

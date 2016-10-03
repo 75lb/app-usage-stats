@@ -1,5 +1,4 @@
 'use strict'
-const testValue = require('test-value')
 const arrayify = require('array-back')
 
 class Stats {
@@ -53,5 +52,6 @@ class Stats {
 module.exports = Stats
 
 function objectsEqual (a, b) {
+  const testValue = require('test-value')
   return Object.keys(a).length === Object.keys(b).length && testValue(a, b)
 }
