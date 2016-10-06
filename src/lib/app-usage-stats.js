@@ -5,7 +5,7 @@ const path = require('path')
 const Stats = require('./stats')
 
 /**
- * A convention for tracking javascript application usage.
+ * A convention for tracking javascript application usage, making full use of [custom dimensions and metrics](https://support.google.com/analytics/answer/2709828?hl=en&ref_topic=2709827).
  * @module app-usage-stats
  * @example
  * const UsageStats = require('app-usage-stats')
@@ -30,19 +30,19 @@ class AppUsageStats extends UsageStats {
     super(tid, options)
 
     /**
-     * Current totals not yet sent
+     * Stats not yet sent.
      * @type {object[]}
      */
     this.unsent = new Stats()
 
     /**
-     * Current totals not yet sent
+     * Stats sent.
      * @type {object[]}
      */
     this.sent = new Stats()
 
     /**
-     * Queued stats path
+     * Queued stats path. Defaults to `~/.usage-stats/${trackingId}-unsent.json`.
      * @type {string}
      */
     this.queuePath = path.resolve(this.dir, tid + '-unsent.json')

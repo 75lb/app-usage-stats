@@ -7,7 +7,7 @@
 <a name="module_app-usage-stats"></a>
 
 ## app-usage-stats
-A convention for tracking javascript application usage.
+A convention for tracking javascript application usage, making full use of [custom dimensions and metrics](https://support.google.com/analytics/answer/2709828?hl=en&ref_topic=2709827).
 
 **Example**  
 ```js
@@ -48,19 +48,19 @@ const stats = new UsageStats('UA-987654321')
 <a name="module_app-usage-stats--AppUsageStats.AppUsageStats+unsent"></a>
 
 #### usage.unsent : <code>Array.&lt;object&gt;</code>
-Current totals not yet sent
+Stats not yet sent.
 
 **Kind**: instance property of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats.AppUsageStats+sent"></a>
 
 #### usage.sent : <code>Array.&lt;object&gt;</code>
-Current totals not yet sent
+Stats sent.
 
 **Kind**: instance property of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats.AppUsageStats+queuePath"></a>
 
 #### usage.queuePath : <code>string</code>
-Queued stats path
+Queued stats path. Defaults to `~/.usage-stats/${trackingId}-unsent.json`.
 
 **Kind**: instance property of <code>[AppUsageStats](#exp_module_app-usage-stats--AppUsageStats)</code>  
 <a name="module_app-usage-stats--AppUsageStats+hit"></a>
