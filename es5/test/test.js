@@ -38,7 +38,7 @@ function sentCount(usage, count) {
 }
 
 runner.test('.hit(dimensions, metrics)', function () {
-  var usage = new TrackUsage(tid);
+  var usage = new TrackUsage(tid, { an: 'app-usage-stats' });
   usage.hit({ name: 'method1', interface: 'cli' }, { option1: 1, option2: 1 });
   usage.hit({ name: 'method1', interface: 'api' }, { option1: 1, option3: 1 });
   usage.hit({ name: 'method1', interface: 'api' }, { option1: 1 });
@@ -76,6 +76,7 @@ runner.test('.hit(dimensions, metrics)', function () {
 
 runner.test('._convertToHits()', function () {
   var usage = new TrackUsage(tid, {
+    an: 'app-usage-stats',
     dimensionMap: {
       name: 'screenview',
       interface: 1
@@ -114,7 +115,7 @@ runner.test('._convertToHits()', function () {
 runner.test('.save() and .load(): this.stats correct', function () {
   var _this = this;
 
-  var usage = new TrackUsage(tid, { dir: 'tmp/test' + this.index });
+  var usage = new TrackUsage(tid, { an: 'app-usage-stats', dir: 'tmp/test' + this.index });
   usage.hit({ name: 'one' }, { metric: 1 });
   usage.hit({ name: 'one' }, { metric: 1 });
   a.deepStrictEqual(usage.unsent.stats, [{ dimension: { name: 'one' }, metric: { metric: 2 } }]);
@@ -127,7 +128,7 @@ runner.test('.save() and .load(): this.stats correct', function () {
 });
 
 runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
-  var usage = new TrackUsage(tid, { dir: 'tmp/test' + this.index });
+  var usage = new TrackUsage(tid, { an: 'app-usage-stats', dir: 'tmp/test' + this.index });
   usage.hit({ name: 'one' }, { metric: 1 });
   usage.hit({ name: 'one' }, { metric: 1 });
   a.deepStrictEqual(usage.unsent.stats, [{ dimension: { name: 'one' }, metric: { metric: 2 } }]);
@@ -139,21 +140,21 @@ runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
 });
 
 runner.test('.hit(): auto-sends after given interval', function () {
-  var usage = new TrackUsage(tid, { sendInterval: 200, dir: 'tmp/test' + this.index });
+  var usage = new TrackUsage(tid, { an: 'app-usage-stats', sendInterval: 200, dir: 'tmp/test' + this.index });
   return Promise.all([usage.hit({ name: 'one' }, { metric: 1 }).then(responseCount(0)), usage.hit({ name: 'one' }, { metric: 1 }).then(responseCount(0)), delay(210).then(unsentCount(usage, 1)).then(function () {
     return usage.hit({ name: 'one' }, { metric: 1 }).then(responseCount(1)).then(sentCount(usage, 1)).then(unsentCount(usage, 0));
   })]);
 });
 
 runner.test('.hit({ send: true }): override auto-send interval', function () {
-  var usage = new TrackUsage(tid, { sendInterval: 20000, dir: 'tmp/test' + this.index });
+  var usage = new TrackUsage(tid, { an: 'app-usage-stats', sendInterval: 20000, dir: 'tmp/test' + this.index });
   return usage.hit({ name: 'one' }, { metric: 1 }, { send: true }).then(responseCount(1)).then(unsentCount(usage, 0)).then(sentCount(usage, 1)).then(function () {
     return usage.hit({ name: 'two' }, { metric: 1 }, { send: true }).then(responseCount(1)).then(unsentCount(usage, 0)).then(sentCount(usage, 2));
   });
 });
 
 runner.test('.send(): this.stats correct after', function () {
-  var usage = new TrackUsage(tid, { dir: 'tmp/test' + this.index });
+  var usage = new TrackUsage(tid, { an: 'app-usage-stats', dir: 'tmp/test' + this.index });
   usage.hit({ name: 'one' }, { metric: 1 });
   usage.hit({ name: 'one' }, { metric: 1 });
   unsentCount(usage, 1)();
@@ -161,7 +162,7 @@ runner.test('.send(): this.stats correct after', function () {
 });
 
 runner.test('.send(): this.stats correct after ongoing hits', function () {
-  var usage = new TrackUsage(tid, { dir: 'tmp/test' + this.index });
+  var usage = new TrackUsage(tid, { an: 'app-usage-stats', dir: 'tmp/test' + this.index });
   usage.hit({ name: 'one' }, { metric: 1 });
   usage.hit({ name: 'one' }, { metric: 1 });
   unsentCount(usage, 1)();
@@ -173,7 +174,7 @@ runner.test('.send(): this.stats correct after ongoing hits', function () {
 });
 
 runner.test('.send(): multiple invocations', function () {
-  var usage = new TrackUsage(tid, { dir: 'tmp/test' + this.index });
+  var usage = new TrackUsage(tid, { an: 'app-usage-stats', dir: 'tmp/test' + this.index });
   usage.hit({ name: 'one' }, { metric: 1 });
   usage.hit({ name: 'one' }, { metric: 1 });
   unsentCount(usage, 1)();

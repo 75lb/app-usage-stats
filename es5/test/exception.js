@@ -13,7 +13,7 @@ rimraf.sync('tmp/test-exception');
 mkdirp.sync('tmp/test-exception');
 
 runner.test('.hit(dimensions, metrics)', function () {
-  var usage = new TrackUsage(tid);
+  var usage = new TrackUsage(tid, { an: 'app-usage-stats' });
   usage.hit({ name: 'method1', interface: 'cli' }, { option1: 1, option2: 1 });
   usage.hit({ name: 'method1', interface: 'api' }, { option1: 1, option3: 1 });
   usage.hit({ name: 'method1', interface: 'api' }, { option1: 1 });
