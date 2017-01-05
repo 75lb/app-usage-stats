@@ -139,6 +139,16 @@ runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
   a.deepStrictEqual(usage.unsent.stats, [{ dimension: { name: 'one' }, metric: { metric: 2 } }]);
 });
 
+runner.test('.loadSync(): handles invalid JSON', function () {
+  var usage = new TrackUsage(tid, { an: 'app-usage-stats', dir: 'tmp/test' + this.index });
+  fs.writeFileSync('tmp/test' + this.index + '/UA-70853320-4-unsent.json', '');
+  a.doesNotThrow(function () {
+    usage.loadSync();
+  });
+  a.deepStrictEqual(JSON.parse(fs.readFileSync('tmp/test' + this.index + '/UA-70853320-4-unsent.json', 'utf8')), []);
+  a.deepStrictEqual(usage.unsent.stats, []);
+});
+
 runner.test('.hit(): auto-sends after given interval', function () {
   var usage = new TrackUsage(tid, { an: 'app-usage-stats', sendInterval: 200, dir: 'tmp/test' + this.index });
   return Promise.all([usage.hit({ name: 'one' }, { metric: 1 }).then(responseCount(0)), usage.hit({ name: 'one' }, { metric: 1 }).then(responseCount(0)), delay(210).then(unsentCount(usage, 1)).then(function () {

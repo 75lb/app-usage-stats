@@ -16,7 +16,7 @@
     "es5": "rm -rf es5 && babel --presets babel-preset-es2015 --no-comments src --out-dir es5"
   },
   "dependencies": {
-    "array-back": "^1.0.3",
+    "array-back": "^1.0.4",
     "core-js": "^2.4.1",
     "feature-detect-es6": "^1.3.1",
     "home-path": "^1.0.3",
@@ -28,7 +28,7 @@
     "babel-preset-es2015": "^6.18.0",
     "mkdirp": "^0.5.1",
     "rimraf": "^2.5.4",
-    "test-runner": "^0.2.5"
+    "test-runner": "^0.3.0"
   },
   "standard": {
     "ignore": [

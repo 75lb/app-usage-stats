@@ -152,7 +152,11 @@ class AppUsageStats extends UsageStats {
       const stats = JSON.parse(fs.readFileSync(this.queuePath, 'utf8'))
       this.unsent.add(stats)
     } catch (err) {
-      if (err.code !== 'ENOENT') {
+      if (err.code === 'ENOENT') {
+        // ignore
+      } else if (err.name === 'SyntaxError') {
+        fs.writeFileSync(this.queuePath, '[]')
+      } else {
         throw err
       }
     }

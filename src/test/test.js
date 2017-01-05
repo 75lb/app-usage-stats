@@ -152,6 +152,19 @@ runner.test('.saveSync() and .loadSync(): this.stats correct', function () {
   ])
 })
 
+runner.test('.loadSync(): handles invalid JSON', function () {
+  const usage = new TrackUsage(tid, { an: 'app-usage-stats', dir: `tmp/test${this.index}` })
+  fs.writeFileSync(`tmp/test${this.index}/UA-70853320-4-unsent.json`, '')
+  a.doesNotThrow(() => {
+    usage.loadSync()
+  })
+  a.deepStrictEqual(
+    JSON.parse(fs.readFileSync(`tmp/test${this.index}/UA-70853320-4-unsent.json`, 'utf8')),
+    []
+  )
+  a.deepStrictEqual(usage.unsent.stats, [])
+})
+
 runner.test('.hit(): auto-sends after given interval', function () {
   const usage = new TrackUsage(tid, { an: 'app-usage-stats', sendInterval: 200, dir: `tmp/test${this.index}` })
   return Promise.all([
