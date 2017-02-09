@@ -1,7 +1,7 @@
 'use strict'
 const TestRunner = require('test-runner')
-const TrackUsage = require('../../')
-const a = require('core-assert')
+const TrackUsage = require('../')
+const a = require('assert')
 const fs = require('fs')
 const rimraf = require('rimraf')
 const mkdirp = require('mkdirp')
